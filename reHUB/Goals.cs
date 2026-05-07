@@ -31,27 +31,44 @@ namespace reHUB
             else
             {
                 selectedGoals.Add(goal);
+
             }
         }
-
+        private void highlightButton(Button btn)
+        {
+            if (btn.BackColor == Color.FromArgb(113, 196, 140))
+            {
+                btn.BackColor = SystemColors.Control;
+                btn.ForeColor = SystemColors.ControlText;
+            }
+            else
+            {
+                btn.BackColor = Color.FromArgb(113, 196, 140);
+                btn.ForeColor = Color.White;
+            }
+        }
         private void btnGoal1_Click(object sender, EventArgs e)
         {
             ToggleGoal("Stay consistent");
+            highlightButton(btnGoal1);
         }
 
         private void btnGoal2_Click(object sender, EventArgs e)
         {
             ToggleGoal("Avoid relapse");
+            highlightButton(btnGoal2);
         }
 
         private void btnGoal3_Click(object sender, EventArgs e)
         {
             ToggleGoal("Find support");
+            highlightButton(btnGoal3);
         }
 
         private void btnGoal4_Click(object sender, EventArgs e)
         {
             ToggleGoal("Build community");
+            highlightButton(btnGoal4);
         }
 
         private void btnContinue_Click(object sender, EventArgs e)
