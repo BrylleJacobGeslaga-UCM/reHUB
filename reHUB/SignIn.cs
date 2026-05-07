@@ -41,7 +41,7 @@ namespace reHUB
                     {
                         MessageBox.Show("Login successful!");
 
-                        WelcomeForm welcome = new WelcomeForm();
+                        WelcomeForm welcome = new WelcomeForm(false);
                         welcome.Show();
                         this.Hide();
                     }
@@ -59,7 +59,7 @@ namespace reHUB
 
         private void btnGuest_Click(object sender, EventArgs e)
         {
-            WelcomeForm welcome = new WelcomeForm();
+            WelcomeForm welcome = new WelcomeForm(true);
             welcome.Show();
             this.Hide();
         }

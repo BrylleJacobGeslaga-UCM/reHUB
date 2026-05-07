@@ -15,16 +15,31 @@ namespace reHUB
     {
 
         private MainForm mainForm;
-
+        Boolean Guest;
         public Dashboard(MainForm form)
         {
             InitializeComponent();
             mainForm = form;
         }
+        public Dashboard(MainForm form, Boolean isGuest)
+        {
+            InitializeComponent();
+            if (isGuest) { Guest = true; }
+            else { Guest = false; }
+            mainForm = form;
+        }
 
         private void btnCheckIn_Click(object sender, EventArgs e)
         {
-            mainForm.LoadForm(new Checkin(mainForm));
+            if (Guest)
+            {
+                mainForm.LoadForm(new PleaseSignIn(mainForm));
+            }
+            else
+            {
+                mainForm.LoadForm(new Checkin(mainForm));
+            }
+            
         }
 
         private void panelHeader_Paint(object sender, PaintEventArgs e)

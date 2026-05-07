@@ -53,7 +53,7 @@ namespace reHUB
 
                     MessageBox.Show("Account created successfully!");
 
-                    WelcomeForm welcome = new WelcomeForm();
+                    WelcomeForm welcome = new WelcomeForm(false);
                     welcome.Show();
                     this.Hide();
                 }

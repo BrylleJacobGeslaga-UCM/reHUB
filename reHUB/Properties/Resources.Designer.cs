@@ -63,6 +63,16 @@ namespace reHUB.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap _25c1637a_cf61_4121_b384_68bcf6f348d4 {
+            get {
+                object obj = ResourceManager.GetObject("25c1637a-cf61-4121-b384-68bcf6f348d4", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap add {
             get {
                 object obj = ResourceManager.GetObject("add", resourceCulture);

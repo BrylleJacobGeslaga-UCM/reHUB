@@ -151,6 +151,12 @@
     <Compile Include="Interest.Designer.cs">
       <DependentUpon>Interest.cs</DependentUpon>
     </Compile>
+    <Compile Include="PleaseSignIn.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PleaseSignIn.Designer.cs">
+      <DependentUpon>PleaseSignIn.cs</DependentUpon>
+    </Compile>
     <Compile Include="Profile.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -209,6 +215,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Interest.resx">
       <DependentUpon>Interest.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PleaseSignIn.resx">
+      <DependentUpon>PleaseSignIn.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Profile.resx">
       <DependentUpon>Profile.cs</DependentUpon>
@@ -269,6 +278,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\icons8-persons-18.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\25c1637a-cf61-4121-b384-68bcf6f348d4.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

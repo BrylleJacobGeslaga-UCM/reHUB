@@ -82,7 +82,7 @@
             this.btnExplore.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnExplore.ForeColor = System.Drawing.Color.White;
             this.btnExplore.Location = new System.Drawing.Point(11, 714);
-            this.btnExplore.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnExplore.Margin = new System.Windows.Forms.Padding(2);
             this.btnExplore.Name = "btnExplore";
             this.btnExplore.Size = new System.Drawing.Size(374, 36);
             this.btnExplore.TabIndex = 16;
@@ -122,7 +122,7 @@
             this.panelHeader.Controls.Add(this.label3);
             this.panelHeader.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelHeader.Location = new System.Drawing.Point(0, 0);
-            this.panelHeader.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.panelHeader.Margin = new System.Windows.Forms.Padding(2);
             this.panelHeader.Name = "panelHeader";
             this.panelHeader.Size = new System.Drawing.Size(396, 114);
             this.panelHeader.TabIndex = 17;
@@ -132,7 +132,7 @@
             // 
             this.panelCheckIn.Controls.Add(this.btnCheckIn);
             this.panelCheckIn.Location = new System.Drawing.Point(11, 128);
-            this.panelCheckIn.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.panelCheckIn.Margin = new System.Windows.Forms.Padding(2);
             this.panelCheckIn.Name = "panelCheckIn";
             this.panelCheckIn.Size = new System.Drawing.Size(374, 96);
             this.panelCheckIn.TabIndex = 19;
@@ -147,7 +147,7 @@
             this.btnCheckIn.ForeColor = System.Drawing.SystemColors.Control;
             this.btnCheckIn.Image = global::reHUB.Properties.Resources.checkmark;
             this.btnCheckIn.Location = new System.Drawing.Point(0, 0);
-            this.btnCheckIn.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnCheckIn.Margin = new System.Windows.Forms.Padding(2);
             this.btnCheckIn.Name = "btnCheckIn";
             this.btnCheckIn.Padding = new System.Windows.Forms.Padding(19, 0, 0, 0);
             this.btnCheckIn.Size = new System.Drawing.Size(374, 96);
@@ -174,9 +174,9 @@
             this.panelIcon1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(195)))), ((int)(((byte)(255)))), ((int)(((byte)(215)))));
             this.panelIcon1.Controls.Add(this.pictureBox1);
             this.panelIcon1.Location = new System.Drawing.Point(12, 11);
-            this.panelIcon1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.panelIcon1.Margin = new System.Windows.Forms.Padding(2);
             this.panelIcon1.Name = "panelIcon1";
-            this.panelIcon1.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.panelIcon1.Padding = new System.Windows.Forms.Padding(4);
             this.panelIcon1.Size = new System.Drawing.Size(57, 62);
             this.panelIcon1.TabIndex = 20;
             // 
@@ -185,7 +185,7 @@
             this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pictureBox1.Image = global::reHUB.Properties.Resources.riders;
             this.pictureBox1.Location = new System.Drawing.Point(4, 4);
-            this.pictureBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.pictureBox1.Margin = new System.Windows.Forms.Padding(2);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(49, 54);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -236,9 +236,9 @@
             this.panelIcon2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(195)))), ((int)(((byte)(255)))), ((int)(((byte)(215)))));
             this.panelIcon2.Controls.Add(this.pictureBox2);
             this.panelIcon2.Location = new System.Drawing.Point(12, 11);
-            this.panelIcon2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.panelIcon2.Margin = new System.Windows.Forms.Padding(2);
             this.panelIcon2.Name = "panelIcon2";
-            this.panelIcon2.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.panelIcon2.Padding = new System.Windows.Forms.Padding(4);
             this.panelIcon2.Size = new System.Drawing.Size(57, 62);
             this.panelIcon2.TabIndex = 20;
             // 
@@ -247,7 +247,7 @@
             this.pictureBox2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pictureBox2.Image = global::reHUB.Properties.Resources.gaming;
             this.pictureBox2.Location = new System.Drawing.Point(4, 4);
-            this.pictureBox2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.pictureBox2.Margin = new System.Windows.Forms.Padding(2);
             this.pictureBox2.Name = "pictureBox2";
             this.pictureBox2.Size = new System.Drawing.Size(49, 54);
             this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -298,9 +298,9 @@
             this.panelIcon3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(195)))), ((int)(((byte)(255)))), ((int)(((byte)(215)))));
             this.panelIcon3.Controls.Add(this.pictureBox3);
             this.panelIcon3.Location = new System.Drawing.Point(12, 11);
-            this.panelIcon3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.panelIcon3.Margin = new System.Windows.Forms.Padding(2);
             this.panelIcon3.Name = "panelIcon3";
-            this.panelIcon3.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.panelIcon3.Padding = new System.Windows.Forms.Padding(4);
             this.panelIcon3.Size = new System.Drawing.Size(57, 62);
             this.panelIcon3.TabIndex = 20;
             // 
@@ -309,7 +309,7 @@
             this.pictureBox3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pictureBox3.Image = global::reHUB.Properties.Resources.hiking;
             this.pictureBox3.Location = new System.Drawing.Point(4, 4);
-            this.pictureBox3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.pictureBox3.Margin = new System.Windows.Forms.Padding(2);
             this.pictureBox3.Name = "pictureBox3";
             this.pictureBox3.Size = new System.Drawing.Size(49, 54);
             this.pictureBox3.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -349,7 +349,7 @@
             this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button2.Image = global::reHUB.Properties.Resources.chat3;
             this.button2.Location = new System.Drawing.Point(203, 237);
-            this.button2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button2.Margin = new System.Windows.Forms.Padding(2);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(182, 143);
             this.button2.TabIndex = 1;
@@ -363,7 +363,7 @@
             this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button1.Image = global::reHUB.Properties.Resources.Persons;
             this.button1.Location = new System.Drawing.Point(11, 237);
-            this.button1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button1.Margin = new System.Windows.Forms.Padding(2);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(182, 143);
             this.button1.TabIndex = 1;
@@ -388,7 +388,7 @@
             this.Controls.Add(this.button2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.button1);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Dashboard";
             this.ShowIcon = false;
             this.Text = "Dashboard";
