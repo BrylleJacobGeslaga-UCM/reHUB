@@ -133,6 +133,12 @@
     <Compile Include="HubDetails.Designer.cs">
       <DependentUpon>HubDetails.cs</DependentUpon>
     </Compile>
+    <Compile Include="Logs.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Logs.Designer.cs">
+      <DependentUpon>Logs.cs</DependentUpon>
+    </Compile>
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -150,6 +156,12 @@
     </Compile>
     <Compile Include="Interest.Designer.cs">
       <DependentUpon>Interest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PleaseSignIn.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PleaseSignIn.Designer.cs">
+      <DependentUpon>PleaseSignIn.cs</DependentUpon>
     </Compile>
     <Compile Include="Profile.cs">
       <SubType>Form</SubType>
@@ -171,12 +183,19 @@
     <Compile Include="SignUp.Designer.cs">
       <DependentUpon>SignUp.cs</DependentUpon>
     </Compile>
+    <Compile Include="TrackGoal.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TrackGoal.Designer.cs">
+      <DependentUpon>TrackGoal.cs</DependentUpon>
+    </Compile>
     <Compile Include="Update.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Update.Designer.cs">
       <DependentUpon>Update.cs</DependentUpon>
     </Compile>
+    <Compile Include="UserSession.cs" />
     <Compile Include="WelcomeForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -201,6 +220,9 @@
     <EmbeddedResource Include="HubDetails.resx">
       <DependentUpon>HubDetails.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Logs.resx">
+      <DependentUpon>Logs.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -209,6 +231,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Interest.resx">
       <DependentUpon>Interest.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PleaseSignIn.resx">
+      <DependentUpon>PleaseSignIn.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Profile.resx">
       <DependentUpon>Profile.cs</DependentUpon>
@@ -228,6 +253,9 @@
     </Compile>
     <EmbeddedResource Include="SignUp.resx">
       <DependentUpon>SignUp.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TrackGoal.resx">
+      <DependentUpon>TrackGoal.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Update.resx">
       <DependentUpon>Update.cs</DependentUpon>
@@ -269,6 +297,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\icons8-persons-18.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\25c1637a-cf61-4121-b384-68bcf6f348d4.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

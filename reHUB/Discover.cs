@@ -41,6 +41,7 @@ namespace reHUB
         {
             mainForm.LoadForm(
                 new HubDetails(
+                    isGuest: UserSession.IsGuest,
                     mainForm,
                     "Morning Riders",
                     53,
@@ -57,6 +58,7 @@ namespace reHUB
         {
             mainForm.LoadForm(
                 new HubDetails(
+                    isGuest: UserSession.IsGuest,
                     mainForm,
                     "Couch Gamers",
                     96,
@@ -73,6 +75,7 @@ namespace reHUB
         {
             mainForm.LoadForm(
                 new HubDetails(
+                    isGuest: UserSession.IsGuest,
                     mainForm,
                     "Trail Seekers",
                     32,
@@ -89,6 +92,7 @@ namespace reHUB
         {
             mainForm.LoadForm(
                 new HubDetails(
+                    isGuest: UserSession.IsGuest,
                     mainForm,
                     "Football Warriors",
                     67,
@@ -105,6 +109,7 @@ namespace reHUB
         {
             mainForm.LoadForm(
                 new HubDetails(
+                    isGuest: UserSession.IsGuest,
                     mainForm,
                     "Creative Circle",
                     104,
@@ -121,6 +126,7 @@ namespace reHUB
         {
             mainForm.LoadForm(
                 new HubDetails(
+                    isGuest: UserSession.IsGuest,
                     mainForm,
                     "Mountain Climbers",
                     97,
@@ -131,6 +137,11 @@ namespace reHUB
                     "Base Camp"
                 )
             );
+        }
+
+        private void panelCard3_Paint(object sender, PaintEventArgs e)
+        {
+
         }
     }
 }

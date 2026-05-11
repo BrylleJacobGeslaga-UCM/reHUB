@@ -16,7 +16,8 @@ namespace reHUB
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new SignIn());
+            MainForm mainForm = new MainForm();
+            Application.Run(new SignIn(mainForm));
         }
     }
 }

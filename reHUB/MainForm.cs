@@ -13,6 +13,21 @@ namespace reHUB
 {
     public partial class MainForm : Form
     {
+        Boolean Guest;
+        public MainForm(Boolean isGuest)
+        {
+            if (isGuest)
+            {
+                Guest = true;
+            }
+            else
+            {
+                Guest = false;
+            }
+            InitializeComponent();
+            LoadForm(new Dashboard(this, true));
+            this.StartPosition = FormStartPosition.CenterScreen;
+        }
         public MainForm()
         {
             InitializeComponent();
@@ -34,7 +49,14 @@ namespace reHUB
 
         private void btnDashboard_Click(object sender, EventArgs e)
         {
-            LoadForm(new Dashboard(this));
+            if (!Guest)
+            {
+                LoadForm(new Dashboard(this));
+            }
+            else
+            {
+                LoadForm(new Dashboard(this, true));
+            }
         }
 
         private void panelContainer_Paint(object sender, PaintEventArgs e)
@@ -43,17 +65,38 @@ namespace reHUB
 
         private void btnFeed_Click(object sender, EventArgs e)
         {
-            LoadForm(new Feed(this));
+            if (!Guest)
+            {
+                LoadForm(new Feed(this));
+            }
+            else
+            {
+                LoadForm(new PleaseSignIn(this));
+            }
         }
 
         private void btnChat_Click(object sender, EventArgs e)
         {
-            LoadForm(new Chat());
+            if (!Guest)
+            {
+                LoadForm(new Chat());
+            }
+            else
+            {
+                LoadForm(new PleaseSignIn(this));
+            }
         }
 
         private void btnProfile_Click(object sender, EventArgs e)
         {
-            LoadForm(new Profile());
+            if (!Guest)
+            {
+                LoadForm(new Profile(this));
+            }
+            else
+            {
+                LoadForm(new PleaseSignIn(this));
+            }
         }
     }
 }

@@ -7,67 +7,170 @@ namespace reHUB
 {
     public partial class SignUp : Form
     {
-        string connectionString = "server=localhost;user id=root;password=;database=rehub;";
+        string connectionString =
+            "server=localhost;user id=root;password=;database=rehub;";
 
         public SignUp()
         {
             InitializeComponent();
-            this.StartPosition = FormStartPosition.CenterScreen;
+
+            this.StartPosition =
+                FormStartPosition.CenterScreen;
         }
 
         private void btnSignUp_Click(object sender, EventArgs e)
         {
-            if (txtEmail.Text == "" || txtPassword.Text == "")
+            // =========================
+            // CHECK EMPTY FIELDS
+            // =========================
+
+            if (
+                txtName.Text == "" ||
+                txtEmail.Text == "" ||
+                txtPassword.Text == ""
+            )
             {
-                MessageBox.Show("Please fill all fields");
+                MessageBox.Show(
+                    "Please fill all fields"
+                );
+
                 return;
             }
 
-            using (MySqlConnection con = new MySqlConnection(connectionString))
+            using (MySqlConnection con =
+                new MySqlConnection(connectionString))
             {
                 try
                 {
                     con.Open();
 
-                    // Check if email already exists
-                    string checkQuery = "SELECT COUNT(*) FROM users WHERE email=@Email";
-                    MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
-                    checkCmd.Parameters.AddWithValue("@Email", txtEmail.Text);
+                    // =========================
+                    // CHECK IF EMAIL EXISTS
+                    // =========================
 
-                    int exists = Convert.ToInt32(checkCmd.ExecuteScalar());
+                    string checkQuery =
+                        "SELECT COUNT(*) FROM users " +
+                        "WHERE email=@Email";
+
+                    MySqlCommand checkCmd =
+                        new MySqlCommand(checkQuery, con);
+
+                    checkCmd.Parameters.AddWithValue(
+                        "@Email",
+                        txtEmail.Text
+                    );
+
+                    int exists =
+                        Convert.ToInt32(
+                            checkCmd.ExecuteScalar()
+                        );
 
                     if (exists > 0)
                     {
-                        MessageBox.Show("Email already exists!");
+                        MessageBox.Show(
+                            "Email already exists!"
+                        );
+
                         return;
                     }
 
-                    // Insert user
-                    string query = "INSERT INTO users (email, password) VALUES (@Email, @Password)";
-                    MySqlCommand cmd = new MySqlCommand(query, con);
+                    // =========================
+                    // INSERT USER
+                    // =========================
 
-                    cmd.Parameters.AddWithValue("@Email", txtEmail.Text);
-                    cmd.Parameters.AddWithValue("@Password", txtPassword.Text);
+                    string query =
+                        "INSERT INTO users " +
+                        "(username, email, password) " +
+                        "VALUES " +
+                        "(@Username, @Email, @Password)";
+
+                    MySqlCommand cmd =
+                        new MySqlCommand(query, con);
+
+                    cmd.Parameters.AddWithValue(
+                        "@Username",
+                        txtName.Text
+                    );
+
+                    cmd.Parameters.AddWithValue(
+                        "@Email",
+                        txtEmail.Text
+                    );
+
+                    cmd.Parameters.AddWithValue(
+                        "@Password",
+                        txtPassword.Text
+                    );
 
                     cmd.ExecuteNonQuery();
 
-                    MessageBox.Show("Account created successfully!");
+                    // =========================
+                    // SAVE USER ID
+                    // =========================
 
-                    WelcomeForm welcome = new WelcomeForm();
+                    UserSession.UserID =
+                        Convert.ToInt32(
+                            cmd.LastInsertedId
+                        );
+
+                    UserSession.Username = txtName.Text;
+
+                    // =========================
+                    // USER IS NOT GUEST
+                    // =========================
+
+                    UserSession.IsGuest = false;
+
+                    MessageBox.Show(
+                        "Account created successfully!"
+                    );
+
+                    // =========================
+                    // OPEN WELCOME
+                    // =========================
+
+                    WelcomeForm welcome =
+                        new WelcomeForm(false);
+
                     welcome.Show();
+
                     this.Hide();
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Error: " + ex.Message);
+                    MessageBox.Show(
+                        "Error: " + ex.Message
+                    );
                 }
             }
         }
 
         private void lblSignIn_Click(object sender, EventArgs e)
         {
-            SignIn login = new SignIn();
+            // Attempt to pass the MainForm owner if this SignUp was opened by it.
+            // If Owner is not a MainForm this will pass null (safe if SignIn accepts a MainForm or null).
+            MainForm parent = this.Owner as MainForm;
+
+            SignIn login = new SignIn(parent);
+
             login.Show();
+
+            this.Hide();
+        }
+
+        private void btnGuest_Click(object sender, EventArgs e)
+        {
+            // =========================
+            // GUEST MODE
+            // =========================
+
+            UserSession.IsGuest = true;
+
+            WelcomeForm welcome =
+                new WelcomeForm(true);
+
+            welcome.Show();
+
             this.Hide();
         }
     }

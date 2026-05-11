@@ -1,6 +1,7 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
 namespace reHUB
@@ -9,7 +10,7 @@ namespace reHUB
     {
         string connectionString = "server=localhost;user id=root;password=;database=rehub;";
 
-        public SignIn()
+        public SignIn(MainForm form)
         {
             InitializeComponent();
             this.StartPosition = FormStartPosition.CenterScreen;
@@ -29,20 +30,28 @@ namespace reHUB
                 {
                     con.Open();
 
-                    string query = "SELECT COUNT(*) FROM users WHERE email=@Email AND password=@Password";
+                    string query = "SELECT * FROM users WHERE email=@Email AND password=@Password";
+
                     MySqlCommand cmd = new MySqlCommand(query, con);
 
                     cmd.Parameters.AddWithValue("@Email", txtEmail.Text);
                     cmd.Parameters.AddWithValue("@Password", txtPassword.Text);
 
-                    int count = Convert.ToInt32(cmd.ExecuteScalar());
+                    MySqlDataReader reader = cmd.ExecuteReader();
 
-                    if (count > 0)
+                    if (reader.Read())
                     {
+                        // SAVE USER ID
+                        UserSession.UserID = Convert.ToInt32(reader["id"]);
+
+                        UserSession.Username = reader["username"].ToString();
+
                         MessageBox.Show("Login successful!");
 
-                        WelcomeForm welcome = new WelcomeForm();
-                        welcome.Show();
+                        MainForm main = new MainForm();
+
+                        main.Show();
+
                         this.Hide();
                     }
                     else
@@ -59,7 +68,9 @@ namespace reHUB
 
         private void btnGuest_Click(object sender, EventArgs e)
         {
-            WelcomeForm welcome = new WelcomeForm();
+            UserSession.IsGuest = true;
+
+            WelcomeForm welcome = new WelcomeForm(true);
             welcome.Show();
             this.Hide();
         }
@@ -69,6 +80,10 @@ namespace reHUB
             SignUp reg = new SignUp();
             reg.Show();
             this.Hide();
+        }
+
+        private void SignIn_Load(object sender, EventArgs e)
+        {
         }
     }
 }

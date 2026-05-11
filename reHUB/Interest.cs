@@ -32,44 +32,66 @@ namespace reHUB
             }
         }
 
+        private void highlightButton(Button btn)
+        {
+            if (btn.BackColor == Color.FromArgb(113, 196, 140))
+            {
+                btn.BackColor = SystemColors.Control;
+                btn.ForeColor = SystemColors.ControlText;
+            }
+            else
+            {
+                btn.BackColor = Color.FromArgb(113, 196, 140);
+                btn.ForeColor = Color.White;
+            }
+        }
+
         private void btnRides_Click(object sender, EventArgs e)
         {
             ToggleSelection("Rides");
+            highlightButton((Button)sender);
         }
 
         private void btnGaming_Click(object sender, EventArgs e)
         {
             ToggleSelection("Gaming");
+            highlightButton((Button)sender);
         }
 
         private void btnSports_Click(object sender, EventArgs e)
         {
             ToggleSelection("Sports");
+            highlightButton((Button)sender);
         }
 
         private void btnHiking_Click(object sender, EventArgs e)
         {
             ToggleSelection("Hiking");
+            highlightButton((Button)sender);
         }
 
         private void btnArt_Click(object sender, EventArgs e)
         {
             ToggleSelection("Art");
+            highlightButton((Button)sender);
         }
 
         private void btnCooking_Click(object sender, EventArgs e)
         {
             ToggleSelection("Cooking");
+            highlightButton((Button)sender);
         }
 
         private void btnMusic_Click(object sender, EventArgs e)
         {
             ToggleSelection("Music");
+            highlightButton((Button)sender);
         }
 
         private void btnReading_Click(object sender, EventArgs e)
         {
             ToggleSelection("Reading");
+            highlightButton((Button)sender);
         }
 
         private void label1_Click(object sender, EventArgs e)
@@ -86,6 +108,7 @@ namespace reHUB
             }
 
             Goals goals = new Goals(selectedInterests);
+
             goals.Show();
             this.Hide();
         }

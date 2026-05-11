@@ -6,11 +6,9 @@ using System.Windows.Forms;
 
 namespace reHUB
 {
-    public partial class Dashboard : Form
+    public partial class TrackGoal : Form
     {
         private MainForm mainForm;
-
-        Boolean Guest;
 
         // =========================
         // DATABASE
@@ -19,49 +17,18 @@ namespace reHUB
         string connectionString =
             "server=localhost;user id=root;password=;database=rehub;";
 
-        public Dashboard(MainForm form)
+        public TrackGoal(MainForm form)
         {
             InitializeComponent();
 
             mainForm = form;
         }
 
-        public Dashboard(MainForm form, Boolean isGuest)
+        private void TrackGoal_Load(
+            object sender,
+            EventArgs e
+        )
         {
-            InitializeComponent();
-
-            Guest = isGuest;
-
-            mainForm = form;
-        }
-
-        private void Dashboard_Load(object sender, EventArgs e)
-        {
-            // =========================
-            // GREETING
-            // =========================
-
-            if (UserSession.IsGuest)
-            {
-                lblGreeting.Text =
-                    "Hello, Guest!";
-            }
-            else
-            {
-                lblGreeting.Text =
-                    "Hello, " +
-                    UserSession.Username +
-                    "!";
-            }
-
-            // =========================
-            // DATE
-            // =========================
-
-            lblDate.Text =
-                DateTime.Now.ToString("dddd, MMM dd"
-            );
-
             // =========================
             // FLOW SETTINGS
             // =========================
@@ -73,23 +40,20 @@ namespace reHUB
                 false;
 
             flowGoals.AutoScroll =
-                false;
+                true;
 
             // =========================
-            // LOAD FEATURED GOAL
+            // LOAD ALL GOALS
             // =========================
 
-            if (!UserSession.IsGuest)
-            {
-                LoadFeaturedGoal();
-            }
+            LoadAllGoals();
         }
 
         // =========================
-        // LOAD MOST PROGRESSED GOAL
+        // LOAD ALL GOALS
         // =========================
 
-        private void LoadFeaturedGoal()
+        private void LoadAllGoals()
         {
             flowGoals.Controls.Clear();
 
@@ -122,19 +86,11 @@ namespace reHUB
 
                     if (string.IsNullOrEmpty(goals))
                     {
-                        lblShowAll.Visible = false;
                         return;
                     }
 
                     string[] goalList =
                         goals.Split(',');
-
-                    // =========================
-                    // SHOW/HIDE SHOW ALL
-                    // =========================
-
-                    lblShowAll.Visible =
-                        goalList.Length > 1;
 
                     // =========================
                     // COUNTS
@@ -210,23 +166,13 @@ namespace reHUB
                         );
 
                     // =========================
-                    // BEST GOAL VARIABLES
+                    // CREATE GOAL CARDS
                     // =========================
 
-                    string bestGoal = "";
-
-                    int bestProgress = -1;
-
-                    string bestProgressText = "";
-
-                    // =========================
-                    // CHECK ALL GOALS
-                    // =========================
-
-                    foreach (string item in goalList)
+                    foreach (string goal in goalList)
                     {
-                        string goal =
-                            item.Trim();
+                        string trimmedGoal =
+                            goal.Trim();
 
                         int progress = 0;
 
@@ -236,7 +182,7 @@ namespace reHUB
                         // STAY CONSISTENT
                         // =========================
 
-                        if (goal ==
+                        if (trimmedGoal ==
                             "Stay consistent")
                         {
                             progress =
@@ -256,7 +202,7 @@ namespace reHUB
                         // AVOID RELAPSE
                         // =========================
 
-                        else if (goal ==
+                        else if (trimmedGoal ==
                             "Avoid relapse")
                         {
                             progress =
@@ -276,7 +222,7 @@ namespace reHUB
                         // FIND SUPPORT
                         // =========================
 
-                        else if (goal ==
+                        else if (trimmedGoal ==
                             "Find support")
                         {
                             progress =
@@ -296,7 +242,7 @@ namespace reHUB
                         // BUILD COMMUNITY
                         // =========================
 
-                        else if (goal ==
+                        else if (trimmedGoal ==
                             "Build community")
                         {
                             progress =
@@ -313,31 +259,15 @@ namespace reHUB
                         }
 
                         // =========================
-                        // SAVE HIGHEST PROGRESS
+                        // CREATE CARD
                         // =========================
 
-                        if (progress > bestProgress)
-                        {
-                            bestGoal =
-                                goal;
-
-                            bestProgress =
-                                progress;
-
-                            bestProgressText =
-                                progressText;
-                        }
+                        CreateGoalCard(
+                            trimmedGoal,
+                            progress,
+                            progressText
+                        );
                     }
-
-                    // =========================
-                    // CREATE BEST GOAL CARD
-                    // =========================
-
-                    CreateGoalCard(
-                        bestGoal,
-                        bestProgress,
-                        bestProgressText
-                    );
                 }
                 catch (Exception ex)
                 {
@@ -358,6 +288,10 @@ namespace reHUB
             string progressText
         )
         {
+            // =========================
+            // MAIN CARD
+            // =========================
+
             Panel card =
                 new Panel();
 
@@ -372,7 +306,7 @@ namespace reHUB
                 BorderStyle.FixedSingle;
 
             card.Margin =
-                new Padding(0, 0, 0, 10);
+                new Padding(0, 0, 0, 12);
 
             // =========================
             // GOAL TITLE
@@ -482,44 +416,21 @@ namespace reHUB
         }
 
         // =========================
-        // SHOW ALL GOALS
+        // BACK BUTTON
         // =========================
 
-        private void lblShowAll_Click(
+        private void btnBack_Click(
             object sender,
             EventArgs e
         )
         {
             mainForm.LoadForm(
-                new TrackGoal(mainForm)
+                new Dashboard(mainForm)
             );
         }
 
         // =========================
-        // CHECK-IN BUTTON
-        // =========================
-
-        private void btnCheckIn_Click(
-            object sender,
-            EventArgs e
-        )
-        {
-            if (Guest)
-            {
-                mainForm.LoadForm(
-                    new PleaseSignIn(mainForm)
-                );
-            }
-            else
-            {
-                mainForm.LoadForm(
-                    new Checkin(mainForm)
-                );
-            }
-        }
-
-        // =========================
-        // HEADER PAINT
+        // HEADER DESIGN
         // =========================
 
         private void panelHeader_Paint(
@@ -538,115 +449,6 @@ namespace reHUB
             e.Graphics.FillRectangle(
                 brush,
                 panelHeader.ClientRectangle
-            );
-        }
-
-        // =========================
-        // EXPLORE BUTTON
-        // =========================
-
-        private void btnExplore_Click(
-            object sender,
-            EventArgs e
-        )
-        {
-            mainForm.LoadForm(
-                new Discover(mainForm)
-            );
-        }
-
-        // =========================
-        // CHECK-IN PANEL PAINT
-        // =========================
-
-        private void panelCheckIn_Paint(
-            object sender,
-            PaintEventArgs e
-        )
-        {
-            LinearGradientBrush brush =
-                new LinearGradientBrush(
-                    panelCheckIn.ClientRectangle,
-                    Color.FromArgb(111, 207, 151),
-                    Color.FromArgb(39, 174, 96),
-                    LinearGradientMode.Horizontal
-                );
-
-            e.Graphics.FillRectangle(
-                brush,
-                panelCheckIn.ClientRectangle
-            );
-        }
-
-        // =========================
-        // HUB CARD 1
-        // =========================
-
-        private void panelCard1_Click(
-            object sender,
-            EventArgs e
-        )
-        {
-            mainForm.LoadForm(
-                new HubDetails(
-                    isGuest: UserSession.IsGuest,
-                    mainForm,
-                    "Morning Riders",
-                    53,
-                    pictureBox1.Image,
-                    "Join us for peaceful morning rides through scenic routes.",
-                    "Sunday Sunrise Ride",
-                    "Apr 26, 7:00 AM",
-                    "Pier 39 Parking"
-                )
-            );
-        }
-
-        // =========================
-        // HUB CARD 2
-        // =========================
-
-        private void panelCard2_Click(
-            object sender,
-            EventArgs e
-        )
-        {
-            mainForm.LoadForm(
-                new HubDetails(
-                    isGuest: UserSession.IsGuest,
-                    mainForm,
-                    "Couch Gamers",
-                    96,
-                    pictureBox2.Image,
-                    "Casual gaming sessions in a judgment-free space.",
-                    "Late Night Ranked",
-                    "Apr 25, 9:00 PM",
-                    "Online"
-                )
-            );
-        }
-
-        // =========================
-        // HUB CARD 3
-        // =========================
-
-        private void panelCard3_Click(
-            object sender,
-            EventArgs e
-        )
-        {
-            mainForm.LoadForm(
-                new HubDetails(
-                    isGuest: UserSession.IsGuest,
-                    mainForm,
-                    "Trail Seekers",
-                    32,
-                    pictureBox3.Image,
-                    "Explore nature trails and build connections.",
-                    "Forest Hike",
-                    "Apr 26, 6:00 AM",
-                    "Green Trail"
-                )
             );
         }
     }
