@@ -261,6 +261,11 @@ namespace reHUB
                                 FontStyle.Regular
                             );
 
+                        hubTag.Cursor = Cursors.Hand;
+
+                        string hubNameCopy = hubTag.Text;
+                        hubTag.Click += (obj, args) => HubTag_Click(hubNameCopy);
+
                         flowCommunities.Controls.Add(hubTag);
                     }
 
@@ -285,6 +290,54 @@ namespace reHUB
             mainForm.LoadForm(
                 new Logs(mainForm)
             );
+        }
+
+        private void HubTag_Click(string hubName)
+        {
+            LeaveGroup leaveGroupForm = new LeaveGroup(hubName, mainForm, this);
+            leaveGroupForm.Show();
+            this.Hide();
+        }
+
+        public void RefreshHubs()
+        {
+            flowCommunities.Controls.Clear();
+
+            using (MySqlConnection con = new MySqlConnection(connectionString))
+            {
+                try
+                {
+                    con.Open();
+
+                    string joinedQuery = "SELECT hub_name FROM joined_hubs WHERE user_id=@id";
+                    MySqlCommand joinedCmd = new MySqlCommand(joinedQuery, con);
+                    joinedCmd.Parameters.AddWithValue("@id", UserSession.UserID);
+
+                    MySqlDataReader joinedReader = joinedCmd.ExecuteReader();
+
+                    while (joinedReader.Read())
+                    {
+                        Label hubTag = new Label();
+                        hubTag.Text = joinedReader["hub_name"].ToString();
+                        hubTag.AutoSize = true;
+                        hubTag.BackColor = Color.FromArgb(214, 232, 225);
+                        hubTag.Padding = new Padding(10, 5, 10, 5);
+                        hubTag.Margin = new Padding(5);
+                        hubTag.Font = new Font("Segoe UI", 9, FontStyle.Regular);
+                        hubTag.Cursor = Cursors.Hand;
+                        string hubNameCopy = hubTag.Text;
+                        hubTag.Click += (obj, args) => HubTag_Click(hubNameCopy);
+
+                        flowCommunities.Controls.Add(hubTag);
+                    }
+
+                    joinedReader.Close();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error: " + ex.Message);
+                }
+            }
         }
     }
 }
