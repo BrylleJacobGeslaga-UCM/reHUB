@@ -496,29 +496,6 @@ namespace reHUB
         }
 
         // =========================
-        // CHECK-IN BUTTON
-        // =========================
-
-        private void btnCheckIn_Click(
-            object sender,
-            EventArgs e
-        )
-        {
-            if (Guest)
-            {
-                mainForm.LoadForm(
-                    new PleaseSignIn(mainForm)
-                );
-            }
-            else
-            {
-                mainForm.LoadForm(
-                    new Checkin(mainForm)
-                );
-            }
-        }
-
-        // =========================
         // HEADER PAINT
         // =========================
 
@@ -552,29 +529,6 @@ namespace reHUB
         {
             mainForm.LoadForm(
                 new Discover(mainForm)
-            );
-        }
-
-        // =========================
-        // CHECK-IN PANEL PAINT
-        // =========================
-
-        private void panelCheckIn_Paint(
-            object sender,
-            PaintEventArgs e
-        )
-        {
-            LinearGradientBrush brush =
-                new LinearGradientBrush(
-                    panelCheckIn.ClientRectangle,
-                    Color.FromArgb(111, 207, 151),
-                    Color.FromArgb(39, 174, 96),
-                    LinearGradientMode.Horizontal
-                );
-
-            e.Graphics.FillRectangle(
-                brush,
-                panelCheckIn.ClientRectangle
             );
         }
 
@@ -647,6 +601,39 @@ namespace reHUB
                     "Apr 26, 6:00 AM",
                     "Green Trail"
                 )
+            );
+        }
+
+        private void panelCheckin_Click(object sender, EventArgs e)
+        {
+            mainForm.LoadForm(
+                new Checkin(mainForm)
+            );
+        }
+
+        private void panelCheckin_MouseHover(object sender, EventArgs e)
+        {
+            panelCheckin.BackColor =
+                Color.FromArgb(
+                74,
+                157,
+                127
+            );
+
+        }
+
+        private void panelCheckin_MouseLeave(object sender, EventArgs e)
+        {
+            panelCheckin.BackColor =
+                Color.FromArgb(
+                113, 196, 140
+            );
+        }
+
+        private void pictureBoxCheckin_Click(object sender, EventArgs e)
+        {
+            mainForm.LoadForm(
+                new Checkin(mainForm)
             );
         }
     }

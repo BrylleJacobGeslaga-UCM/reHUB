@@ -33,8 +33,6 @@
             this.lblDate = new System.Windows.Forms.Label();
             this.lblGreeting = new System.Windows.Forms.Label();
             this.panelHeader = new System.Windows.Forms.Panel();
-            this.panelCheckIn = new System.Windows.Forms.Panel();
-            this.btnCheckIn = new System.Windows.Forms.Button();
             this.panelCard1 = new System.Windows.Forms.Panel();
             this.panelIcon1 = new System.Windows.Forms.Panel();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
@@ -53,8 +51,11 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.lblShowAll = new System.Windows.Forms.Label();
+            this.panelCheckin = new System.Windows.Forms.Panel();
+            this.lblCheckin1 = new System.Windows.Forms.Label();
+            this.lblCheckin2 = new System.Windows.Forms.Label();
+            this.pictureBoxCheckin = new System.Windows.Forms.PictureBox();
             this.panelHeader.SuspendLayout();
-            this.panelCheckIn.SuspendLayout();
             this.panelCard1.SuspendLayout();
             this.panelIcon1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -64,6 +65,8 @@
             this.panelCard3.SuspendLayout();
             this.panelIcon3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
+            this.panelCheckin.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxCheckin)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
@@ -96,7 +99,7 @@
             this.lblDate.BackColor = System.Drawing.Color.Transparent;
             this.lblDate.Font = new System.Drawing.Font("Microsoft YaHei UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblDate.ForeColor = System.Drawing.SystemColors.Control;
-            this.lblDate.Location = new System.Drawing.Point(29, 73);
+            this.lblDate.Location = new System.Drawing.Point(28, 84);
             this.lblDate.Name = "lblDate";
             this.lblDate.Size = new System.Drawing.Size(150, 23);
             this.lblDate.TabIndex = 1;
@@ -108,7 +111,7 @@
             this.lblGreeting.BackColor = System.Drawing.Color.Transparent;
             this.lblGreeting.Font = new System.Drawing.Font("Microsoft YaHei UI", 16.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblGreeting.ForeColor = System.Drawing.SystemColors.Control;
-            this.lblGreeting.Location = new System.Drawing.Point(27, 20);
+            this.lblGreeting.Location = new System.Drawing.Point(26, 31);
             this.lblGreeting.Name = "lblGreeting";
             this.lblGreeting.Size = new System.Drawing.Size(222, 36);
             this.lblGreeting.TabIndex = 1;
@@ -122,39 +125,9 @@
             this.panelHeader.Location = new System.Drawing.Point(0, 0);
             this.panelHeader.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panelHeader.Name = "panelHeader";
-            this.panelHeader.Size = new System.Drawing.Size(514, 140);
+            this.panelHeader.Size = new System.Drawing.Size(511, 140);
             this.panelHeader.TabIndex = 17;
             this.panelHeader.Paint += new System.Windows.Forms.PaintEventHandler(this.panelHeader_Paint);
-            // 
-            // panelCheckIn
-            // 
-            this.panelCheckIn.Controls.Add(this.btnCheckIn);
-            this.panelCheckIn.Location = new System.Drawing.Point(15, 158);
-            this.panelCheckIn.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.panelCheckIn.Name = "panelCheckIn";
-            this.panelCheckIn.Size = new System.Drawing.Size(499, 118);
-            this.panelCheckIn.TabIndex = 19;
-            this.panelCheckIn.Paint += new System.Windows.Forms.PaintEventHandler(this.panelCheckIn_Paint);
-            // 
-            // btnCheckIn
-            // 
-            this.btnCheckIn.BackColor = System.Drawing.Color.Transparent;
-            this.btnCheckIn.FlatAppearance.BorderSize = 0;
-            this.btnCheckIn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnCheckIn.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnCheckIn.ForeColor = System.Drawing.SystemColors.Control;
-            this.btnCheckIn.Image = global::reHUB.Properties.Resources.checkmark;
-            this.btnCheckIn.Location = new System.Drawing.Point(0, 0);
-            this.btnCheckIn.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.btnCheckIn.Name = "btnCheckIn";
-            this.btnCheckIn.Padding = new System.Windows.Forms.Padding(25, 0, 0, 0);
-            this.btnCheckIn.Size = new System.Drawing.Size(496, 118);
-            this.btnCheckIn.TabIndex = 18;
-            this.btnCheckIn.Text = "Daily Check-in\r\n\r\nHow are you feeling today?";
-            this.btnCheckIn.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnCheckIn.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
-            this.btnCheckIn.UseVisualStyleBackColor = false;
-            this.btnCheckIn.Click += new System.EventHandler(this.btnCheckIn_Click);
             // 
             // panelCard1
             // 
@@ -164,7 +137,7 @@
             this.panelCard1.Controls.Add(this.label5);
             this.panelCard1.Cursor = System.Windows.Forms.Cursors.Hand;
             this.panelCard1.Location = new System.Drawing.Point(15, 519);
-            this.panelCard1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.panelCard1.Margin = new System.Windows.Forms.Padding(4);
             this.panelCard1.Name = "panelCard1";
             this.panelCard1.Size = new System.Drawing.Size(495, 107);
             this.panelCard1.TabIndex = 20;
@@ -177,7 +150,7 @@
             this.panelIcon1.Location = new System.Drawing.Point(16, 14);
             this.panelIcon1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panelIcon1.Name = "panelIcon1";
-            this.panelIcon1.Padding = new System.Windows.Forms.Padding(5, 5, 5, 5);
+            this.panelIcon1.Padding = new System.Windows.Forms.Padding(5);
             this.panelIcon1.Size = new System.Drawing.Size(76, 76);
             this.panelIcon1.TabIndex = 20;
             // 
@@ -227,7 +200,7 @@
             this.panelCard2.Controls.Add(this.label7);
             this.panelCard2.Cursor = System.Windows.Forms.Cursors.Hand;
             this.panelCard2.Location = new System.Drawing.Point(15, 634);
-            this.panelCard2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.panelCard2.Margin = new System.Windows.Forms.Padding(4);
             this.panelCard2.Name = "panelCard2";
             this.panelCard2.Size = new System.Drawing.Size(495, 107);
             this.panelCard2.TabIndex = 21;
@@ -240,7 +213,7 @@
             this.panelIcon2.Location = new System.Drawing.Point(16, 14);
             this.panelIcon2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panelIcon2.Name = "panelIcon2";
-            this.panelIcon2.Padding = new System.Windows.Forms.Padding(5, 5, 5, 5);
+            this.panelIcon2.Padding = new System.Windows.Forms.Padding(5);
             this.panelIcon2.Size = new System.Drawing.Size(76, 76);
             this.panelIcon2.TabIndex = 20;
             // 
@@ -310,7 +283,7 @@
             this.panelCard3.Controls.Add(this.label8);
             this.panelCard3.Cursor = System.Windows.Forms.Cursors.Hand;
             this.panelCard3.Location = new System.Drawing.Point(15, 750);
-            this.panelCard3.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.panelCard3.Margin = new System.Windows.Forms.Padding(4);
             this.panelCard3.Name = "panelCard3";
             this.panelCard3.Size = new System.Drawing.Size(495, 107);
             this.panelCard3.TabIndex = 24;
@@ -323,7 +296,7 @@
             this.panelIcon3.Location = new System.Drawing.Point(16, 14);
             this.panelIcon3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panelIcon3.Name = "panelIcon3";
-            this.panelIcon3.Padding = new System.Windows.Forms.Padding(5, 5, 5, 5);
+            this.panelIcon3.Padding = new System.Windows.Forms.Padding(5);
             this.panelIcon3.Size = new System.Drawing.Size(76, 76);
             this.panelIcon3.TabIndex = 20;
             // 
@@ -377,6 +350,54 @@
             this.lblShowAll.Text = "Show All";
             this.lblShowAll.Click += new System.EventHandler(this.lblShowAll_Click);
             // 
+            // panelCheckin
+            // 
+            this.panelCheckin.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(113)))), ((int)(((byte)(196)))), ((int)(((byte)(140)))));
+            this.panelCheckin.Controls.Add(this.pictureBoxCheckin);
+            this.panelCheckin.Controls.Add(this.lblCheckin2);
+            this.panelCheckin.Controls.Add(this.lblCheckin1);
+            this.panelCheckin.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.panelCheckin.Location = new System.Drawing.Point(14, 156);
+            this.panelCheckin.Name = "panelCheckin";
+            this.panelCheckin.Size = new System.Drawing.Size(496, 122);
+            this.panelCheckin.TabIndex = 25;
+            this.panelCheckin.Click += new System.EventHandler(this.panelCheckin_Click);
+            this.panelCheckin.MouseLeave += new System.EventHandler(this.panelCheckin_MouseLeave);
+            this.panelCheckin.MouseHover += new System.EventHandler(this.panelCheckin_MouseHover);
+            // 
+            // lblCheckin1
+            // 
+            this.lblCheckin1.AutoSize = true;
+            this.lblCheckin1.Font = new System.Drawing.Font("Microsoft YaHei UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblCheckin1.ForeColor = System.Drawing.SystemColors.Control;
+            this.lblCheckin1.Location = new System.Drawing.Point(16, 30);
+            this.lblCheckin1.Name = "lblCheckin1";
+            this.lblCheckin1.Size = new System.Drawing.Size(157, 27);
+            this.lblCheckin1.TabIndex = 2;
+            this.lblCheckin1.Text = "Daily Check-in";
+            // 
+            // lblCheckin2
+            // 
+            this.lblCheckin2.AutoSize = true;
+            this.lblCheckin2.Font = new System.Drawing.Font("Microsoft YaHei UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblCheckin2.ForeColor = System.Drawing.SystemColors.Control;
+            this.lblCheckin2.Location = new System.Drawing.Point(17, 66);
+            this.lblCheckin2.Name = "lblCheckin2";
+            this.lblCheckin2.Size = new System.Drawing.Size(246, 24);
+            this.lblCheckin2.TabIndex = 2;
+            this.lblCheckin2.Text = "How are you feeling today?";
+            // 
+            // pictureBoxCheckin
+            // 
+            this.pictureBoxCheckin.Image = global::reHUB.Properties.Resources.add;
+            this.pictureBoxCheckin.Location = new System.Drawing.Point(396, 25);
+            this.pictureBoxCheckin.Name = "pictureBoxCheckin";
+            this.pictureBoxCheckin.Size = new System.Drawing.Size(76, 75);
+            this.pictureBoxCheckin.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBoxCheckin.TabIndex = 3;
+            this.pictureBoxCheckin.TabStop = false;
+            this.pictureBoxCheckin.Click += new System.EventHandler(this.pictureBoxCheckin_Click);
+            // 
             // Dashboard
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -384,13 +405,13 @@
             this.AutoScroll = true;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(528, 846);
+            this.Controls.Add(this.panelCheckin);
             this.Controls.Add(this.panelCard3);
             this.Controls.Add(this.lblShowAll);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.flowGoals);
             this.Controls.Add(this.panelCard2);
             this.Controls.Add(this.panelCard1);
-            this.Controls.Add(this.panelCheckIn);
             this.Controls.Add(this.panelHeader);
             this.Controls.Add(this.btnExplore);
             this.Controls.Add(this.label1);
@@ -401,7 +422,6 @@
             this.Load += new System.EventHandler(this.Dashboard_Load);
             this.panelHeader.ResumeLayout(false);
             this.panelHeader.PerformLayout();
-            this.panelCheckIn.ResumeLayout(false);
             this.panelCard1.ResumeLayout(false);
             this.panelCard1.PerformLayout();
             this.panelIcon1.ResumeLayout(false);
@@ -414,6 +434,9 @@
             this.panelCard3.PerformLayout();
             this.panelIcon3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).EndInit();
+            this.panelCheckin.ResumeLayout(false);
+            this.panelCheckin.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxCheckin)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -425,8 +448,6 @@
         private System.Windows.Forms.Label lblDate;
         private System.Windows.Forms.Label lblGreeting;
         private System.Windows.Forms.Panel panelHeader;
-        private System.Windows.Forms.Button btnCheckIn;
-        private System.Windows.Forms.Panel panelCheckIn;
         private System.Windows.Forms.Panel panelCard1;
         private System.Windows.Forms.Panel panelIcon1;
         private System.Windows.Forms.PictureBox pictureBox1;
@@ -445,5 +466,9 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label lblShowAll;
+        private System.Windows.Forms.Panel panelCheckin;
+        private System.Windows.Forms.PictureBox pictureBoxCheckin;
+        private System.Windows.Forms.Label lblCheckin2;
+        private System.Windows.Forms.Label lblCheckin1;
     }
 }

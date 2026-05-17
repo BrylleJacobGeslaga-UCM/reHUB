@@ -38,6 +38,7 @@
             this.txtUpdate = new System.Windows.Forms.TextBox();
             this.label8 = new System.Windows.Forms.Label();
             this.btnPost = new System.Windows.Forms.Button();
+            this.chkAnonymous = new System.Windows.Forms.CheckBox();
             this.panelHeader.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -160,11 +161,23 @@
             this.btnPost.UseVisualStyleBackColor = false;
             this.btnPost.Click += new System.EventHandler(this.btnPost_Click);
             // 
+            // chkAnonymous
+            // 
+            this.chkAnonymous.AutoSize = true;
+            this.chkAnonymous.Font = new System.Drawing.Font("Microsoft YaHei UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chkAnonymous.Location = new System.Drawing.Point(304, 217);
+            this.chkAnonymous.Name = "chkAnonymous";
+            this.chkAnonymous.Size = new System.Drawing.Size(212, 31);
+            this.chkAnonymous.TabIndex = 26;
+            this.chkAnonymous.Text = "Post Anonymously";
+            this.chkAnonymous.UseVisualStyleBackColor = true;
+            // 
             // Update
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(528, 1040);
+            this.Controls.Add(this.chkAnonymous);
             this.Controls.Add(this.btnPost);
             this.Controls.Add(this.label8);
             this.Controls.Add(this.txtUpdate);
@@ -195,5 +208,6 @@
         private System.Windows.Forms.TextBox txtUpdate;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Button btnPost;
+        private System.Windows.Forms.CheckBox chkAnonymous;
     }
 }

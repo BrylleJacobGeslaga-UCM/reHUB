@@ -40,26 +40,6 @@ namespace reHUB
             );
         }
 
-        private void panelChild_Paint(object sender, PaintEventArgs e)
-        {
-            Color borderColor =
-                Color.FromArgb(113, 196, 140);
-
-            int borderThickness = 1;
-
-            using (Pen pen =
-                new Pen(borderColor, borderThickness))
-            {
-                e.Graphics.DrawRectangle(
-                    pen,
-                    0,
-                    0,
-                    panelChild.Width - 1,
-                    panelChild.Height - 1
-                );
-            }
-        }
-
         private void panelProgress_Paint(object sender, PaintEventArgs e)
         {
             Color borderColor =
@@ -82,16 +62,41 @@ namespace reHUB
 
         private void btnLogOut_Click(object sender, EventArgs e)
         {
-            UserSession.UserID = 0;
+            DialogResult result =
+                MessageBox.Show(
+                    "Are you sure you want to log out?",
+                    "Log Out",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question
+                );
 
-            UserSession.Username = "";
+            if (result == DialogResult.Yes)
+            {
+                // =========================
+                // CLEAR SESSION
+                // =========================
 
-            UserSession.IsGuest = true;
+                UserSession.UserID = 0;
 
-            // =========================
-            // GO TO LOGIN
-            // =========================
+                UserSession.Username = "";
 
+                UserSession.IsGuest = false;
+
+                // =========================
+                // OPEN SIGN IN FORM
+                // =========================
+
+                SignIn signIn =
+                    new SignIn(mainForm);
+
+                signIn.Show();
+
+                // =========================
+                // CLOSE MAIN FORM
+                // =========================
+
+                mainForm.Hide();
+            }
         }
 
         private void Profile_Load(object sender, EventArgs e)
@@ -193,9 +198,6 @@ namespace reHUB
                             countCmd.ExecuteScalar()
                         );
 
-                    lblCheckins.Text =
-                        totalCheckins.ToString();
-
                     // =========================
                     // DAILY CHECK-IN PROGRESS
                     // =========================
@@ -213,33 +215,6 @@ namespace reHUB
                     {
                         progressBar1.Value = totalCheckins;
                     }
-
-                    // =========================
-                    // LOAD JOINED COMMUNITIES COUNT
-                    // =========================
-
-                    string communityCountQuery =
-                        "SELECT COUNT(*) FROM joined_hubs " +
-                        "WHERE user_id=@id";
-
-                    MySqlCommand communityCountCmd =
-                        new MySqlCommand(
-                            communityCountQuery,
-                            con
-                        );
-
-                    communityCountCmd.Parameters.AddWithValue(
-                        "@id",
-                        UserSession.UserID
-                    );
-
-                    int totalCommunities =
-                        Convert.ToInt32(
-                            communityCountCmd.ExecuteScalar()
-                        );
-
-                    lblCommunities.Text =
-                        totalCommunities.ToString();
 
                     // =========================
                     // LOAD JOINED HUBS

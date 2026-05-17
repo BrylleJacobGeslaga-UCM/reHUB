@@ -89,6 +89,7 @@
             // 
             this.txtEmail.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(244)))), ((int)(((byte)(244)))), ((int)(((byte)(244)))));
             this.txtEmail.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.txtEmail.Font = new System.Drawing.Font("Microsoft YaHei UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtEmail.Location = new System.Drawing.Point(57, 459);
             this.txtEmail.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtEmail.Multiline = true;
@@ -109,11 +110,12 @@
             // txtPassword
             // 
             this.txtPassword.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(244)))), ((int)(((byte)(244)))), ((int)(((byte)(244)))));
+            this.txtPassword.Font = new System.Drawing.Font("Microsoft YaHei UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtPassword.Location = new System.Drawing.Point(57, 528);
             this.txtPassword.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.txtPassword.Multiline = true;
             this.txtPassword.Name = "txtPassword";
-            this.txtPassword.Size = new System.Drawing.Size(417, 30);
+            this.txtPassword.PasswordChar = '*';
+            this.txtPassword.Size = new System.Drawing.Size(417, 29);
             this.txtPassword.TabIndex = 2;
             this.txtPassword.UseSystemPasswordChar = true;
             // 
@@ -121,6 +123,7 @@
             // 
             this.btnSignIn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(113)))), ((int)(((byte)(196)))), ((int)(((byte)(140)))));
             this.btnSignIn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSignIn.Font = new System.Drawing.Font("Microsoft YaHei UI", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnSignIn.ForeColor = System.Drawing.Color.White;
             this.btnSignIn.Location = new System.Drawing.Point(57, 580);
             this.btnSignIn.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -158,6 +161,7 @@
             // 
             this.btnGuest.BackColor = System.Drawing.Color.White;
             this.btnGuest.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnGuest.Font = new System.Drawing.Font("Microsoft YaHei UI", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnGuest.ForeColor = System.Drawing.Color.Black;
             this.btnGuest.Location = new System.Drawing.Point(57, 697);
             this.btnGuest.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -170,7 +174,8 @@
             // 
             // SignIn
             // 
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(528, 1040);
             this.Controls.Add(this.btnGuest);
             this.Controls.Add(this.btnSignIn);

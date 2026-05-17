@@ -17,6 +17,13 @@ namespace reHUB
         string connectionString =
             "server=localhost;user id=root;password=;database=rehub;";
 
+        // =========================
+        // ACTIVE REACTION COLOR
+        // =========================
+
+        Color activeColor =
+            Color.FromArgb(74, 157, 127);
+
         public Feed(MainForm form)
         {
             InitializeComponent();
@@ -56,30 +63,27 @@ namespace reHUB
                     con.Open();
 
                     // =========================
-                    // ONLY SHOW POSTS
-                    // FROM JOINED HUBS
+                    // LOAD POSTS
                     // =========================
 
                     string query =
-                        "SELECT users.username, " +
+                        "SELECT updates.id, " +
+                        "users.username, " +
                         "updates.hub_name, " +
                         "updates.content, " +
-                        "updates.created_at " +
+                        "updates.created_at, " +
+                        "updates.is_anonymous " +
 
                         "FROM updates " +
 
-                        // USER INFO
                         "INNER JOIN users " +
                         "ON updates.user_id = users.id " +
 
-                        // FILTER JOINED HUBS
                         "INNER JOIN joined_hubs " +
                         "ON updates.hub_name = joined_hubs.hub_name " +
 
-                        // CURRENT USER
                         "WHERE joined_hubs.user_id = @userId " +
 
-                        // NEWEST FIRST
                         "ORDER BY updates.created_at DESC";
 
                     MySqlCommand cmd =
@@ -95,8 +99,27 @@ namespace reHUB
 
                     while (reader.Read())
                     {
-                        string username =
-                            reader["username"].ToString();
+                        int postId =
+                            Convert.ToInt32(
+                                reader["id"]
+                            );
+
+                        bool isAnonymous =
+                            Convert.ToBoolean(
+                                reader["is_anonymous"]
+                        );
+
+                        string username;
+
+                        if (isAnonymous)
+                        {
+                            username = "Anonymous";
+                        }
+                        else
+                        {
+                            username =
+                                reader["username"].ToString();
+                        }
 
                         string hub =
                             reader["hub_name"].ToString();
@@ -110,15 +133,34 @@ namespace reHUB
                             );
 
                         // =========================
+                        // CHECK REACTIONS
+                        // =========================
+
+                        bool supported =
+                            HasReacted(
+                                postId,
+                                "Support"
+                            );
+
+                        bool proud =
+                            HasReacted(
+                                postId,
+                                "Proud"
+                            );
+
+                        // =========================
                         // MAIN CARD
                         // =========================
 
-                        Panel card = new Panel();
+                        Panel card =
+                            new Panel();
 
                         card.Width = 372;
+
                         card.Height = 210;
 
-                        card.BackColor = Color.White;
+                        card.BackColor =
+                            Color.White;
 
                         card.Margin =
                             new Padding(0, 0, 0, 15);
@@ -131,6 +173,7 @@ namespace reHUB
                             new PictureBox();
 
                         picProfile.Width = 45;
+
                         picProfile.Height = 45;
 
                         picProfile.Location =
@@ -149,7 +192,8 @@ namespace reHUB
                         Label lblUser =
                             new Label();
 
-                        lblUser.Text = username;
+                        lblUser.Text =
+                            username;
 
                         lblUser.Font =
                             new Font(
@@ -158,7 +202,8 @@ namespace reHUB
                                 FontStyle.Bold
                             );
 
-                        lblUser.AutoSize = true;
+                        lblUser.AutoSize =
+                            true;
 
                         lblUser.Location =
                             new Point(75, 15);
@@ -183,7 +228,8 @@ namespace reHUB
                                 10
                             );
 
-                        lblTime.AutoSize = true;
+                        lblTime.AutoSize =
+                            true;
 
                         lblTime.Location =
                             new Point(170, 17);
@@ -199,7 +245,11 @@ namespace reHUB
                             hub;
 
                         lblHub.ForeColor =
-                            Color.FromArgb(113, 196, 140);
+                            Color.FromArgb(
+                                113,
+                                196,
+                                140
+                            );
 
                         lblHub.Font =
                             new Font(
@@ -207,13 +257,14 @@ namespace reHUB
                                 11
                             );
 
-                        lblHub.AutoSize = true;
+                        lblHub.AutoSize =
+                            true;
 
                         lblHub.Location =
                             new Point(75, 42);
 
                         // =========================
-                        // POST CONTENT
+                        // CONTENT
                         // =========================
 
                         Label lblContent =
@@ -225,7 +276,8 @@ namespace reHUB
                         lblContent.MaximumSize =
                             new Size(330, 0);
 
-                        lblContent.AutoSize = true;
+                        lblContent.AutoSize =
+                            true;
 
                         lblContent.Font =
                             new Font(
@@ -244,6 +296,7 @@ namespace reHUB
                             new PictureBox();
 
                         picSupport.Width = 22;
+
                         picSupport.Height = 22;
 
                         picSupport.Location =
@@ -253,9 +306,16 @@ namespace reHUB
                             PictureBoxSizeMode.Zoom;
 
                         picSupport.Image =
-                            Properties.Resources.heart;
+                            supported
+                            ? Properties.Resources.heart2
+                            : Properties.Resources.heart;
 
-                        // SUPPORT TEXT
+                        picSupport.Cursor =
+                            Cursors.Hand;
+
+                        // =========================
+                        // SUPPORT LABEL
+                        // =========================
 
                         Label lblSupport =
                             new Label();
@@ -266,13 +326,51 @@ namespace reHUB
                         lblSupport.Font =
                             new Font(
                                 "Segoe UI",
-                                10
+                                10,
+                                supported
+                                ? FontStyle.Bold
+                                : FontStyle.Regular
                             );
 
-                        lblSupport.AutoSize = true;
+                        lblSupport.ForeColor =
+                            supported
+                            ? activeColor
+                            : Color.Black;
+
+                        lblSupport.AutoSize =
+                            true;
 
                         lblSupport.Location =
                             new Point(42, 171);
+
+                        lblSupport.Cursor =
+                            Cursors.Hand;
+
+                        // =========================
+                        // SUPPORT CLICK
+                        // =========================
+
+                        picSupport.Click +=
+                            (s, e) =>
+                            {
+                                ToggleReaction(
+                                    postId,
+                                    "Support"
+                                );
+
+                                LoadFeed();
+                            };
+
+                        lblSupport.Click +=
+                            (s, e) =>
+                            {
+                                ToggleReaction(
+                                    postId,
+                                    "Support"
+                                );
+
+                                LoadFeed();
+                            };
 
                         // =========================
                         // PROUD ICON
@@ -282,18 +380,26 @@ namespace reHUB
                             new PictureBox();
 
                         picProud.Width = 22;
+
                         picProud.Height = 22;
 
                         picProud.Location =
-                            new Point(115, 170);
+                            new Point(110, 170);
 
                         picProud.SizeMode =
                             PictureBoxSizeMode.Zoom;
 
                         picProud.Image =
-                            Properties.Resources.smile;
+                            proud
+                            ? Properties.Resources.smile2
+                            : Properties.Resources.smile;
 
-                        // PROUD TEXT
+                        picProud.Cursor =
+                            Cursors.Hand;
+
+                        // =========================
+                        // PROUD LABEL
+                        // =========================
 
                         Label lblProud =
                             new Label();
@@ -304,13 +410,51 @@ namespace reHUB
                         lblProud.Font =
                             new Font(
                                 "Segoe UI",
-                                10
+                                10,
+                                proud
+                                ? FontStyle.Bold
+                                : FontStyle.Regular
                             );
 
-                        lblProud.AutoSize = true;
+                        lblProud.ForeColor =
+                            proud
+                            ? activeColor
+                            : Color.Black;
+
+                        lblProud.AutoSize =
+                            true;
 
                         lblProud.Location =
-                            new Point(142, 171);
+                            new Point(137, 171);
+
+                        lblProud.Cursor =
+                            Cursors.Hand;
+
+                        // =========================
+                        // PROUD CLICK
+                        // =========================
+
+                        picProud.Click +=
+                            (s, e) =>
+                            {
+                                ToggleReaction(
+                                    postId,
+                                    "Proud"
+                                );
+
+                                LoadFeed();
+                            };
+
+                        lblProud.Click +=
+                            (s, e) =>
+                            {
+                                ToggleReaction(
+                                    postId,
+                                    "Proud"
+                                );
+
+                                LoadFeed();
+                            };
 
                         // =========================
                         // ENCOURAGE ICON
@@ -320,10 +464,11 @@ namespace reHUB
                             new PictureBox();
 
                         picEncourage.Width = 22;
+
                         picEncourage.Height = 22;
 
                         picEncourage.Location =
-                            new Point(248, 170);
+                            new Point(250, 170);
 
                         picEncourage.SizeMode =
                             PictureBoxSizeMode.Zoom;
@@ -331,7 +476,9 @@ namespace reHUB
                         picEncourage.Image =
                             Properties.Resources.encourage;
 
-                        // ENCOURAGE TEXT
+                        // =========================
+                        // ENCOURAGE LABEL
+                        // =========================
 
                         Label lblEncourage =
                             new Label();
@@ -345,10 +492,11 @@ namespace reHUB
                                 10
                             );
 
-                        lblEncourage.AutoSize = true;
+                        lblEncourage.AutoSize =
+                            true;
 
                         lblEncourage.Location =
-                            new Point(275, 171);
+                            new Point(277, 171);
 
                         // =========================
                         // ADD CONTROLS
@@ -376,10 +524,6 @@ namespace reHUB
 
                         card.Controls.Add(lblEncourage);
 
-                        // =========================
-                        // ADD TO FLOW
-                        // =========================
-
                         flowFeed.Controls.Add(card);
                     }
 
@@ -388,9 +532,172 @@ namespace reHUB
                 catch (Exception ex)
                 {
                     MessageBox.Show(
-                        "Error: " + ex.Message
+                        "Error: " +
+                        ex.Message
                     );
                 }
+            }
+        }
+
+        // =========================
+        // TOGGLE REACTION
+        // =========================
+
+        private void ToggleReaction(
+            int postId,
+            string reactionType
+        )
+        {
+            using (MySqlConnection con =
+                new MySqlConnection(connectionString))
+            {
+                con.Open();
+
+                string checkQuery =
+                    "SELECT COUNT(*) " +
+                    "FROM reactions " +
+                    "WHERE user_id=@userId " +
+                    "AND update_id=@postId " +
+                    "AND reaction_type=@type";
+
+                MySqlCommand checkCmd =
+                    new MySqlCommand(
+                        checkQuery,
+                        con
+                    );
+
+                checkCmd.Parameters.AddWithValue(
+                    "@userId",
+                    UserSession.UserID
+                );
+
+                checkCmd.Parameters.AddWithValue(
+                    "@postId",
+                    postId
+                );
+
+                checkCmd.Parameters.AddWithValue(
+                    "@type",
+                    reactionType
+                );
+
+                int exists =
+                    Convert.ToInt32(
+                        checkCmd.ExecuteScalar()
+                    );
+
+                // REMOVE REACTION
+
+                if (exists > 0)
+                {
+                    string deleteQuery =
+                        "DELETE FROM reactions " +
+                        "WHERE user_id=@userId " +
+                        "AND update_id=@postId " +
+                        "AND reaction_type=@type";
+
+                    MySqlCommand deleteCmd =
+                        new MySqlCommand(
+                            deleteQuery,
+                            con
+                        );
+
+                    deleteCmd.Parameters.AddWithValue(
+                        "@userId",
+                        UserSession.UserID
+                    );
+
+                    deleteCmd.Parameters.AddWithValue(
+                        "@postId",
+                        postId
+                    );
+
+                    deleteCmd.Parameters.AddWithValue(
+                        "@type",
+                        reactionType
+                    );
+
+                    deleteCmd.ExecuteNonQuery();
+                }
+
+                // ADD REACTION
+
+                else
+                {
+                    string insertQuery =
+                        "INSERT INTO reactions " +
+                        "(user_id, update_id, reaction_type) " +
+                        "VALUES " +
+                        "(@userId, @postId, @type)";
+
+                    MySqlCommand insertCmd =
+                        new MySqlCommand(
+                            insertQuery,
+                            con
+                        );
+
+                    insertCmd.Parameters.AddWithValue(
+                        "@userId",
+                        UserSession.UserID
+                    );
+
+                    insertCmd.Parameters.AddWithValue(
+                        "@postId",
+                        postId
+                    );
+
+                    insertCmd.Parameters.AddWithValue(
+                        "@type",
+                        reactionType
+                    );
+
+                    insertCmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        // =========================
+        // CHECK IF REACTED
+        // =========================
+
+        private bool HasReacted(
+            int postId,
+            string reactionType
+        )
+        {
+            using (MySqlConnection con =
+                new MySqlConnection(connectionString))
+            {
+                con.Open();
+
+                string query =
+                    "SELECT COUNT(*) " +
+                    "FROM reactions " +
+                    "WHERE user_id=@userId " +
+                    "AND update_id=@postId " +
+                    "AND reaction_type=@type";
+
+                MySqlCommand cmd =
+                    new MySqlCommand(query, con);
+
+                cmd.Parameters.AddWithValue(
+                    "@userId",
+                    UserSession.UserID
+                );
+
+                cmd.Parameters.AddWithValue(
+                    "@postId",
+                    postId
+                );
+
+                cmd.Parameters.AddWithValue(
+                    "@type",
+                    reactionType
+                );
+
+                return Convert.ToInt32(
+                    cmd.ExecuteScalar()
+                ) > 0;
             }
         }
 
@@ -398,7 +705,9 @@ namespace reHUB
         // TIME AGO
         // =========================
 
-        private string GetTimeAgo(DateTime dateTime)
+        private string GetTimeAgo(
+            DateTime dateTime
+        )
         {
             TimeSpan span =
                 DateTime.Now - dateTime;
@@ -419,7 +728,10 @@ namespace reHUB
                 " days ago";
         }
 
-        private void panelHeader_Paint(object sender, PaintEventArgs e)
+        private void panelHeader_Paint(
+            object sender,
+            PaintEventArgs e
+        )
         {
             LinearGradientBrush brush =
                 new LinearGradientBrush(
@@ -435,36 +747,14 @@ namespace reHUB
             );
         }
 
-        private void btnAdd_Click(object sender, EventArgs e)
+        private void btnAdd_Click(
+            object sender,
+            EventArgs e
+        )
         {
             mainForm.LoadForm(
                 new Update(mainForm)
             );
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label9_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void panelPost1_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void panelPost2_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-
         }
     }
 }

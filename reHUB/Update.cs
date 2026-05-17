@@ -32,6 +32,23 @@ namespace reHUB
         {
             cmbHubs.Items.Clear();
 
+            // =========================
+            // ANONYMOUS CHECKBOX STYLE
+            // =========================
+
+            chkAnonymous.Text =
+                "Post anonymously";
+
+            chkAnonymous.ForeColor =
+                Color.FromArgb(74, 157, 127);
+
+            chkAnonymous.Font =
+                new Font(
+                    "Segoe UI",
+                    10,
+                    FontStyle.Regular
+                );
+
             using (MySqlConnection con =
                 new MySqlConnection(connectionString))
             {
@@ -72,7 +89,14 @@ namespace reHUB
             }
         }
 
-        private void panelHeader_Paint(object sender, PaintEventArgs e)
+        // =========================
+        // HEADER PAINT
+        // =========================
+
+        private void panelHeader_Paint(
+            object sender,
+            PaintEventArgs e
+        )
         {
             LinearGradientBrush brush =
                 new LinearGradientBrush(
@@ -88,7 +112,14 @@ namespace reHUB
             );
         }
 
-        private void btnBack_Click(object sender, EventArgs e)
+        // =========================
+        // BACK BUTTON
+        // =========================
+
+        private void btnBack_Click(
+            object sender,
+            EventArgs e
+        )
         {
             mainForm.LoadForm(
                 new Feed(mainForm)
@@ -99,7 +130,10 @@ namespace reHUB
         // POST UPDATE
         // =========================
 
-        private void btnPost_Click(object sender, EventArgs e)
+        private void btnPost_Click(
+            object sender,
+            EventArgs e
+        )
         {
             if (cmbHubs.SelectedIndex == -1)
             {
@@ -126,11 +160,15 @@ namespace reHUB
                 {
                     con.Open();
 
+                    // =========================
+                    // INSERT UPDATE
+                    // =========================
+
                     string query =
                         "INSERT INTO updates " +
-                        "(user_id, hub_name, content) " +
+                        "(user_id, hub_name, content, is_anonymous) " +
                         "VALUES " +
-                        "(@userId, @hub, @content)";
+                        "(@userId, @hub, @content, @anonymous)";
 
                     MySqlCommand cmd =
                         new MySqlCommand(query, con);
@@ -147,13 +185,20 @@ namespace reHUB
 
                     cmd.Parameters.AddWithValue(
                         "@content",
-                        txtUpdate.Text
+                        txtUpdate.Text.Trim()
+                    );
+
+                    cmd.Parameters.AddWithValue(
+                        "@anonymous",
+                        chkAnonymous.Checked ? 1 : 0
                     );
 
                     cmd.ExecuteNonQuery();
 
                     MessageBox.Show(
-                        "Update posted!"
+                        chkAnonymous.Checked
+                        ? "Anonymous update posted!"
+                        : "Update posted!"
                     );
 
                     mainForm.LoadForm(
