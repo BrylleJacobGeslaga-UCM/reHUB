@@ -164,10 +164,10 @@
             // chkAnonymous
             // 
             this.chkAnonymous.AutoSize = true;
-            this.chkAnonymous.Font = new System.Drawing.Font("Microsoft YaHei UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chkAnonymous.Font = new System.Drawing.Font("Microsoft YaHei UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.chkAnonymous.Location = new System.Drawing.Point(304, 217);
             this.chkAnonymous.Name = "chkAnonymous";
-            this.chkAnonymous.Size = new System.Drawing.Size(212, 31);
+            this.chkAnonymous.Size = new System.Drawing.Size(192, 28);
             this.chkAnonymous.TabIndex = 26;
             this.chkAnonymous.Text = "Post Anonymously";
             this.chkAnonymous.UseVisualStyleBackColor = true;

@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.panelHeader = new System.Windows.Forms.Panel();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
@@ -39,19 +38,20 @@
             this.lblProgress = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
+            this.flowInterests = new System.Windows.Forms.FlowLayoutPanel();
+            this.lblLogs = new System.Windows.Forms.Label();
+            this.flowCommunities = new System.Windows.Forms.FlowLayoutPanel();
             this.btnLogOut = new System.Windows.Forms.Button();
             this.pictureBox4 = new System.Windows.Forms.PictureBox();
             this.pictureBox3 = new System.Windows.Forms.PictureBox();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
-            this.flowInterests = new System.Windows.Forms.FlowLayoutPanel();
-            this.lblLogs = new System.Windows.Forms.Label();
-            this.flowCommunities = new System.Windows.Forms.FlowLayoutPanel();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.panelHeader.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.panelProgress.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // panelHeader
@@ -67,25 +67,13 @@
             this.panelHeader.TabIndex = 2;
             this.panelHeader.Paint += new System.Windows.Forms.PaintEventHandler(this.panelHeader_Paint);
             // 
-            // pictureBox1
-            // 
-            this.pictureBox1.BackColor = System.Drawing.Color.Transparent;
-            this.pictureBox1.Image = global::reHUB.Properties.Resources.profile3;
-            this.pictureBox1.Location = new System.Drawing.Point(17, 35);
-            this.pictureBox1.Margin = new System.Windows.Forms.Padding(4);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(89, 87);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox1.TabIndex = 4;
-            this.pictureBox1.TabStop = false;
-            // 
             // label2
             // 
             this.label2.AutoSize = true;
             this.label2.BackColor = System.Drawing.Color.Transparent;
             this.label2.Font = new System.Drawing.Font("Microsoft YaHei UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.ForeColor = System.Drawing.SystemColors.Control;
-            this.label2.Location = new System.Drawing.Point(114, 90);
+            this.label2.Location = new System.Drawing.Point(125, 90);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(167, 23);
             this.label2.TabIndex = 2;
@@ -97,7 +85,7 @@
             this.label1.BackColor = System.Drawing.Color.Transparent;
             this.label1.Font = new System.Drawing.Font("Microsoft YaHei UI", 16.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.ForeColor = System.Drawing.SystemColors.Control;
-            this.label1.Location = new System.Drawing.Point(113, 47);
+            this.label1.Location = new System.Drawing.Point(124, 47);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(203, 36);
             this.label1.TabIndex = 3;
@@ -186,6 +174,39 @@
             this.label10.TabIndex = 2;
             this.label10.Text = "Joined Hubs";
             // 
+            // flowInterests
+            // 
+            this.flowInterests.AutoScroll = true;
+            this.flowInterests.Font = new System.Drawing.Font("Microsoft YaHei UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.flowInterests.Location = new System.Drawing.Point(17, 395);
+            this.flowInterests.Name = "flowInterests";
+            this.flowInterests.Size = new System.Drawing.Size(495, 57);
+            this.flowInterests.TabIndex = 18;
+            // 
+            // lblLogs
+            // 
+            this.lblLogs.AutoSize = true;
+            this.lblLogs.BackColor = System.Drawing.Color.Transparent;
+            this.lblLogs.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.lblLogs.Font = new System.Drawing.Font("Microsoft YaHei UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblLogs.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(157)))), ((int)(((byte)(127)))));
+            this.lblLogs.Location = new System.Drawing.Point(401, 180);
+            this.lblLogs.Name = "lblLogs";
+            this.lblLogs.Size = new System.Drawing.Size(94, 23);
+            this.lblLogs.TabIndex = 2;
+            this.lblLogs.Text = "View Logs";
+            this.lblLogs.Click += new System.EventHandler(this.lblLogs_Click);
+            // 
+            // flowCommunities
+            // 
+            this.flowCommunities.AutoScroll = true;
+            this.flowCommunities.AutoSize = true;
+            this.flowCommunities.Font = new System.Drawing.Font("Microsoft YaHei UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.flowCommunities.Location = new System.Drawing.Point(16, 517);
+            this.flowCommunities.Name = "flowCommunities";
+            this.flowCommunities.Size = new System.Drawing.Size(495, 79);
+            this.flowCommunities.TabIndex = 18;
+            // 
             // btnLogOut
             // 
             this.btnLogOut.BackColor = System.Drawing.Color.White;
@@ -238,38 +259,17 @@
             this.pictureBox2.TabIndex = 3;
             this.pictureBox2.TabStop = false;
             // 
-            // flowInterests
+            // pictureBox1
             // 
-            this.flowInterests.AutoScroll = true;
-            this.flowInterests.Font = new System.Drawing.Font("Microsoft YaHei UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.flowInterests.Location = new System.Drawing.Point(17, 395);
-            this.flowInterests.Name = "flowInterests";
-            this.flowInterests.Size = new System.Drawing.Size(495, 57);
-            this.flowInterests.TabIndex = 18;
-            // 
-            // lblLogs
-            // 
-            this.lblLogs.AutoSize = true;
-            this.lblLogs.BackColor = System.Drawing.Color.Transparent;
-            this.lblLogs.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.lblLogs.Font = new System.Drawing.Font("Microsoft YaHei UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblLogs.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(157)))), ((int)(((byte)(127)))));
-            this.lblLogs.Location = new System.Drawing.Point(401, 180);
-            this.lblLogs.Name = "lblLogs";
-            this.lblLogs.Size = new System.Drawing.Size(94, 23);
-            this.lblLogs.TabIndex = 2;
-            this.lblLogs.Text = "View Logs";
-            this.lblLogs.Click += new System.EventHandler(this.lblLogs_Click);
-            // 
-            // flowCommunities
-            // 
-            this.flowCommunities.AutoScroll = true;
-            this.flowCommunities.AutoSize = true;
-            this.flowCommunities.Font = new System.Drawing.Font("Microsoft YaHei UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.flowCommunities.Location = new System.Drawing.Point(16, 517);
-            this.flowCommunities.Name = "flowCommunities";
-            this.flowCommunities.Size = new System.Drawing.Size(495, 79);
-            this.flowCommunities.TabIndex = 18;
+            this.pictureBox1.BackColor = System.Drawing.Color.Transparent;
+            this.pictureBox1.Image = global::reHUB.Properties.Resources.prof31;
+            this.pictureBox1.Location = new System.Drawing.Point(17, 31);
+            this.pictureBox1.Margin = new System.Windows.Forms.Padding(4);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(100, 98);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox1.TabIndex = 4;
+            this.pictureBox1.TabStop = false;
             // 
             // Profile
             // 
@@ -294,12 +294,12 @@
             this.Load += new System.EventHandler(this.Profile_Load);
             this.panelHeader.ResumeLayout(false);
             this.panelHeader.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.panelProgress.ResumeLayout(false);
             this.panelProgress.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

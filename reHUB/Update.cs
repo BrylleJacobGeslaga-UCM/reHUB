@@ -32,23 +32,6 @@ namespace reHUB
         {
             cmbHubs.Items.Clear();
 
-            // =========================
-            // ANONYMOUS CHECKBOX STYLE
-            // =========================
-
-            chkAnonymous.Text =
-                "Post anonymously";
-
-            chkAnonymous.ForeColor =
-                Color.FromArgb(74, 157, 127);
-
-            chkAnonymous.Font =
-                new Font(
-                    "Segoe UI",
-                    10,
-                    FontStyle.Regular
-                );
-
             using (MySqlConnection con =
                 new MySqlConnection(connectionString))
             {

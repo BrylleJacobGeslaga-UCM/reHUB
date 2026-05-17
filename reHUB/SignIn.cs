@@ -46,6 +46,8 @@ namespace reHUB
 
                         UserSession.Username = reader["username"].ToString();
 
+                        UserSession.IsGuest = false;
+
                         MessageBox.Show("Login successful!");
 
                         MainForm main = new MainForm();

@@ -548,7 +548,7 @@ namespace reHUB
                     "Morning Riders",
                     53,
                     pictureBox1.Image,
-                    "Join us for peaceful morning rides through scenic routes.",
+                    "Join us for peaceful morning rides through scenic routes. A supportive  group focused on mindfulness and the open road. All experience levels  welcome.",
                     "Sunday Sunrise Ride",
                     "Apr 26, 7:00 AM",
                     "Pier 39 Parking"
@@ -572,7 +572,7 @@ namespace reHUB
                     "Couch Gamers",
                     96,
                     pictureBox2.Image,
-                    "Casual gaming sessions in a judgment-free space.",
+                    "Casual gaming sessions in a judgment-free space. Play together, support  each other, and have fun. No competitive pressure, just good vibes.",
                     "Late Night Ranked",
                     "Apr 25, 9:00 PM",
                     "Online"
@@ -596,7 +596,7 @@ namespace reHUB
                     "Trail Seekers",
                     32,
                     pictureBox3.Image,
-                    "Explore nature trails and build connections.",
+                    "Explore nature trails and build connections. Every hike is a step  forward on your journey. We focus on the experience, not the  destination.",
                     "Forest Hike",
                     "Apr 26, 6:00 AM",
                     "Green Trail"

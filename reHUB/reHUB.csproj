@@ -301,5 +301,14 @@
   <ItemGroup>
     <None Include="Resources\25c1637a-cf61-4121-b384-68bcf6f348d4.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\image-removebg-preview.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\prof3.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\prof31.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

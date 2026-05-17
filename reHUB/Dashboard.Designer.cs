@@ -52,9 +52,9 @@
             this.label8 = new System.Windows.Forms.Label();
             this.lblShowAll = new System.Windows.Forms.Label();
             this.panelCheckin = new System.Windows.Forms.Panel();
-            this.lblCheckin1 = new System.Windows.Forms.Label();
-            this.lblCheckin2 = new System.Windows.Forms.Label();
             this.pictureBoxCheckin = new System.Windows.Forms.PictureBox();
+            this.lblCheckin2 = new System.Windows.Forms.Label();
+            this.lblCheckin1 = new System.Windows.Forms.Label();
             this.panelHeader.SuspendLayout();
             this.panelCard1.SuspendLayout();
             this.panelIcon1.SuspendLayout();
@@ -365,16 +365,16 @@
             this.panelCheckin.MouseLeave += new System.EventHandler(this.panelCheckin_MouseLeave);
             this.panelCheckin.MouseHover += new System.EventHandler(this.panelCheckin_MouseHover);
             // 
-            // lblCheckin1
+            // pictureBoxCheckin
             // 
-            this.lblCheckin1.AutoSize = true;
-            this.lblCheckin1.Font = new System.Drawing.Font("Microsoft YaHei UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblCheckin1.ForeColor = System.Drawing.SystemColors.Control;
-            this.lblCheckin1.Location = new System.Drawing.Point(16, 30);
-            this.lblCheckin1.Name = "lblCheckin1";
-            this.lblCheckin1.Size = new System.Drawing.Size(157, 27);
-            this.lblCheckin1.TabIndex = 2;
-            this.lblCheckin1.Text = "Daily Check-in";
+            this.pictureBoxCheckin.Image = global::reHUB.Properties.Resources.add;
+            this.pictureBoxCheckin.Location = new System.Drawing.Point(396, 25);
+            this.pictureBoxCheckin.Name = "pictureBoxCheckin";
+            this.pictureBoxCheckin.Size = new System.Drawing.Size(76, 75);
+            this.pictureBoxCheckin.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBoxCheckin.TabIndex = 3;
+            this.pictureBoxCheckin.TabStop = false;
+            this.pictureBoxCheckin.Click += new System.EventHandler(this.pictureBoxCheckin_Click);
             // 
             // lblCheckin2
             // 
@@ -387,16 +387,16 @@
             this.lblCheckin2.TabIndex = 2;
             this.lblCheckin2.Text = "How are you feeling today?";
             // 
-            // pictureBoxCheckin
+            // lblCheckin1
             // 
-            this.pictureBoxCheckin.Image = global::reHUB.Properties.Resources.add;
-            this.pictureBoxCheckin.Location = new System.Drawing.Point(396, 25);
-            this.pictureBoxCheckin.Name = "pictureBoxCheckin";
-            this.pictureBoxCheckin.Size = new System.Drawing.Size(76, 75);
-            this.pictureBoxCheckin.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBoxCheckin.TabIndex = 3;
-            this.pictureBoxCheckin.TabStop = false;
-            this.pictureBoxCheckin.Click += new System.EventHandler(this.pictureBoxCheckin_Click);
+            this.lblCheckin1.AutoSize = true;
+            this.lblCheckin1.Font = new System.Drawing.Font("Microsoft YaHei UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblCheckin1.ForeColor = System.Drawing.SystemColors.Control;
+            this.lblCheckin1.Location = new System.Drawing.Point(16, 30);
+            this.lblCheckin1.Name = "lblCheckin1";
+            this.lblCheckin1.Size = new System.Drawing.Size(157, 27);
+            this.lblCheckin1.TabIndex = 2;
+            this.lblCheckin1.Text = "Daily Check-in";
             // 
             // Dashboard
             // 
