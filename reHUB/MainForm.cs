@@ -1,19 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 
 namespace reHUB
 {
     public partial class MainForm : Form
     {
         Boolean Guest;
+
+        // =========================
+        // CONSTRUCTOR (GUEST)
+        // =========================
+
         public MainForm(Boolean isGuest)
         {
             if (isGuest)
@@ -24,87 +23,286 @@ namespace reHUB
             {
                 Guest = false;
             }
+
             InitializeComponent();
-            LoadForm(new Dashboard(this, true));
-            this.StartPosition = FormStartPosition.CenterScreen;
+
+            this.StartPosition =
+                FormStartPosition.CenterScreen;
+
+            // =========================
+            // DEFAULT ACTIVE NAV
+            // =========================
+
+            ActivateButton(btnDashboard);
+
+            LoadForm(
+                new Dashboard(this, true)
+            );
         }
+
+        // =========================
+        // CONSTRUCTOR (NORMAL)
+        // =========================
+
         public MainForm()
         {
-            Guest = UserSession.IsGuest;
+            Guest =
+                UserSession.IsGuest;
+
             InitializeComponent();
+
+            this.StartPosition =
+                FormStartPosition.CenterScreen;
+
+            // =========================
+            // DEFAULT ACTIVE NAV
+            // =========================
+
+            ActivateButton(btnDashboard);
+
             if (Guest)
             {
-                LoadForm(new Dashboard(this, true));
+                LoadForm(
+                    new Dashboard(this, true)
+                );
             }
             else
             {
-                LoadForm(new Dashboard(this));
+                LoadForm(
+                    new Dashboard(this)
+                );
             }
-            this.StartPosition = FormStartPosition.CenterScreen;
         }
+
+        // =========================
+        // LOAD FORM
+        // =========================
 
         public void LoadForm(Form form)
         {
             panelContainer.Controls.Clear();
 
             form.TopLevel = false;
-            form.FormBorderStyle = FormBorderStyle.None;
-            form.Dock = DockStyle.Fill;
+
+            form.FormBorderStyle =
+                FormBorderStyle.None;
+
+            form.Dock =
+                DockStyle.Fill;
 
             panelContainer.Controls.Add(form);
+
             form.Show();
         }
 
-        private void btnDashboard_Click(object sender, EventArgs e)
+        // =========================
+        // RESET NAVIGATION
+        // =========================
+
+        private void ResetNavigation()
         {
-            if (!Guest)
+            // DASHBOARD
+
+            btnDashboard.BackColor =
+                Color.White;
+
+            btnDashboard.ForeColor =
+                Color.Gray;
+
+            btnDashboard.Image =
+                Properties.Resources.home;
+
+            // FEED
+
+            btnFeed.BackColor =
+                Color.White;
+
+            btnFeed.ForeColor =
+                Color.Gray;
+
+            btnFeed.Image =
+                Properties.Resources.feed;
+
+            // CHAT
+
+            btnChat.BackColor =
+                Color.White;
+
+            btnChat.ForeColor =
+                Color.Gray;
+
+            btnChat.Image =
+                Properties.Resources.chat;
+
+            // PROFILE
+
+            btnProfile.BackColor =
+                Color.White;
+
+            btnProfile.ForeColor =
+                Color.Gray;
+
+            btnProfile.Image =
+                Properties.Resources.profile;
+        }
+
+        // =========================
+        // ACTIVATE BUTTON
+        // =========================
+
+        private void ActivateButton(Button btn)
+        {
+            ResetNavigation();
+
+            btn.BackColor =
+                Color.FromArgb(
+                    214,
+                    232,
+                    225
+                );
+
+            btn.ForeColor =
+                Color.FromArgb(
+                    74,
+                    157,
+                    127
+                );
+
+            // =========================
+            // ACTIVE ICONS
+            // =========================
+
+            if (btn == btnDashboard)
             {
-                LoadForm(new Dashboard(this));
+                btnDashboard.Image =
+                    Properties.Resources.home2;
             }
-            else
+
+            else if (btn == btnFeed)
             {
-                LoadForm(new Dashboard(this, true));
+                btnFeed.Image =
+                    Properties.Resources.feed2;
+            }
+
+            else if (btn == btnChat)
+            {
+                btnChat.Image =
+                    Properties.Resources.chat2;
+            }
+
+            else if (btn == btnProfile)
+            {
+                btnProfile.Image =
+                    Properties.Resources.profile2;
             }
         }
 
-        private void panelContainer_Paint(object sender, PaintEventArgs e)
-        {
-        }
+        // =========================
+        // DASHBOARD
+        // =========================
 
-        private void btnFeed_Click(object sender, EventArgs e)
+        private void btnDashboard_Click(
+            object sender,
+            EventArgs e
+        )
         {
+            ActivateButton(btnDashboard);
+
             if (!Guest)
             {
-                LoadForm(new Feed(this));
+                LoadForm(
+                    new Dashboard(this)
+                );
             }
             else
             {
-                LoadForm(new PleaseSignIn(this));
+                LoadForm(
+                    new Dashboard(this, true)
+                );
             }
         }
 
-        private void btnChat_Click(object sender, EventArgs e)
+        // =========================
+        // FEED
+        // =========================
+
+        private void btnFeed_Click(
+            object sender,
+            EventArgs e
+        )
         {
+            ActivateButton(btnFeed);
+
             if (!Guest)
             {
-                LoadForm(new Chat());
+                LoadForm(
+                    new Feed(this)
+                );
             }
             else
             {
-                LoadForm(new PleaseSignIn(this));
+                LoadForm(
+                    new PleaseSignIn(this)
+                );
             }
         }
 
-        private void btnProfile_Click(object sender, EventArgs e)
+        // =========================
+        // CHAT
+        // =========================
+
+        private void btnChat_Click(
+            object sender,
+            EventArgs e
+        )
         {
+            ActivateButton(btnChat);
+
             if (!Guest)
             {
-                LoadForm(new Profile(this));
+                LoadForm(
+                    new Chat()
+                );
             }
             else
             {
-                LoadForm(new PleaseSignIn(this));
+                LoadForm(
+                    new PleaseSignIn(this)
+                );
             }
+        }
+
+        // =========================
+        // PROFILE
+        // =========================
+
+        private void btnProfile_Click(
+            object sender,
+            EventArgs e
+        )
+        {
+            ActivateButton(btnProfile);
+
+            if (!Guest)
+            {
+                LoadForm(
+                    new Profile(this)
+                );
+            }
+            else
+            {
+                LoadForm(
+                    new PleaseSignIn(this)
+                );
+            }
+        }
+
+        private void panelContainer_Paint(
+            object sender,
+            PaintEventArgs e
+        )
+        {
+
         }
     }
 }

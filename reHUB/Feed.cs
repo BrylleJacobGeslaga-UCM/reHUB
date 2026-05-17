@@ -62,10 +62,6 @@ namespace reHUB
                 {
                     con.Open();
 
-                    // =========================
-                    // LOAD POSTS
-                    // =========================
-
                     string query =
                         "SELECT updates.id, " +
                         "users.username, " +
@@ -97,8 +93,16 @@ namespace reHUB
                     MySqlDataReader reader =
                         cmd.ExecuteReader();
 
+                    // =========================
+                    // CHECK IF POSTS EXIST
+                    // =========================
+
+                    bool hasPosts = false;
+
                     while (reader.Read())
                     {
+                        hasPosts = true;
+
                         int postId =
                             Convert.ToInt32(
                                 reader["id"]
@@ -107,25 +111,29 @@ namespace reHUB
                         bool isAnonymous =
                             Convert.ToBoolean(
                                 reader["is_anonymous"]
-                        );
+                            );
 
                         string username;
 
                         if (isAnonymous)
                         {
-                            username = "Anonymous";
+                            username =
+                                "Anonymous";
                         }
                         else
                         {
                             username =
-                                reader["username"].ToString();
+                                reader["username"]
+                                .ToString();
                         }
 
                         string hub =
-                            reader["hub_name"].ToString();
+                            reader["hub_name"]
+                            .ToString();
 
                         string content =
-                            reader["content"].ToString();
+                            reader["content"]
+                            .ToString();
 
                         DateTime time =
                             Convert.ToDateTime(
@@ -163,7 +171,12 @@ namespace reHUB
                             Color.White;
 
                         card.Margin =
-                            new Padding(0, 0, 0, 15);
+                            new Padding(
+                                0,
+                                0,
+                                0,
+                                15
+                            );
 
                         // =========================
                         // PROFILE IMAGE
@@ -528,6 +541,90 @@ namespace reHUB
                     }
 
                     reader.Close();
+
+                    // =========================
+                    // EMPTY STATE
+                    // =========================
+
+                    if (!hasPosts)
+                    {
+                        Panel emptyPanel =
+                            new Panel();
+
+                        emptyPanel.Width = 372;
+
+                        emptyPanel.Height = 250;
+
+                        emptyPanel.BackColor =
+                            Color.White;
+
+                        emptyPanel.Margin =
+                            new Padding(
+                                0,
+                                20,
+                                0,
+                                0
+                            );
+
+                        PictureBox picEmpty =
+                            new PictureBox();
+
+                        picEmpty.Width = 64;
+
+                        picEmpty.Height = 64;
+
+                        picEmpty.SizeMode =
+                            PictureBoxSizeMode.Zoom;
+
+                        picEmpty.Image =
+                            Properties.Resources.feed;
+
+                        picEmpty.Location =
+                            new Point(154, 40);
+
+                        Label lblEmpty =
+                            new Label();
+
+                        lblEmpty.Text =
+                            "No posts yet 🌱\n\n" +
+                            "Join a hub and share\n" +
+                            "your first update.";
+
+                        lblEmpty.Font =
+                            new Font(
+                                "Segoe UI",
+                                12,
+                                FontStyle.Regular
+                            );
+
+                        lblEmpty.ForeColor =
+                            Color.Gray;
+
+                        lblEmpty.TextAlign =
+                            ContentAlignment.MiddleCenter;
+
+                        lblEmpty.AutoSize =
+                            false;
+
+                        lblEmpty.Width = 372;
+
+                        lblEmpty.Height = 100;
+
+                        lblEmpty.Location =
+                            new Point(0, 120);
+
+                        emptyPanel.Controls.Add(
+                            picEmpty
+                        );
+
+                        emptyPanel.Controls.Add(
+                            lblEmpty
+                        );
+
+                        flowFeed.Controls.Add(
+                            emptyPanel
+                        );
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -586,8 +683,6 @@ namespace reHUB
                         checkCmd.ExecuteScalar()
                     );
 
-                // REMOVE REACTION
-
                 if (exists > 0)
                 {
                     string deleteQuery =
@@ -619,9 +714,6 @@ namespace reHUB
 
                     deleteCmd.ExecuteNonQuery();
                 }
-
-                // ADD REACTION
-
                 else
                 {
                     string insertQuery =

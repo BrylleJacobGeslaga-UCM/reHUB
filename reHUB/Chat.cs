@@ -88,6 +88,18 @@ namespace reHUB
                     {
                         cmbHubs.SelectedIndex = 0;
                     }
+
+                    // =========================
+                    // NO HUBS JOINED
+                    // =========================
+
+                    else
+                    {
+                        ShowEmptyState(
+                            "No conversations yet",
+                            "Join a supportive hub to start chatting."
+                        );
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -144,8 +156,12 @@ namespace reHUB
                     MySqlDataReader reader =
                         cmd.ExecuteReader();
 
+                    bool hasMessages = false;
+
                     while (reader.Read())
                     {
+                        hasMessages = true;
+
                         string username =
                             reader["username"].ToString();
 
@@ -175,6 +191,18 @@ namespace reHUB
                     }
 
                     reader.Close();
+
+                    // =========================
+                    // EMPTY CHAT
+                    // =========================
+
+                    if (!hasMessages)
+                    {
+                        ShowEmptyState(
+                            "No messages yet",
+                            "Start the conversation and support each other."
+                        );
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -183,6 +211,93 @@ namespace reHUB
                     );
                 }
             }
+        }
+
+        // =========================
+        // EMPTY STATE
+        // =========================
+
+        private void ShowEmptyState(
+            string title,
+            string subtitle
+        )
+        {
+            Panel emptyPanel =
+                new Panel();
+
+            emptyPanel.Width = 372;
+
+            emptyPanel.Height = 400;
+
+            emptyPanel.BackColor =
+                Color.Transparent;
+
+            PictureBox pic =
+                new PictureBox();
+
+            pic.Width = 90;
+
+            pic.Height = 90;
+
+            pic.SizeMode =
+                PictureBoxSizeMode.Zoom;
+
+            pic.Image =
+                Properties.Resources.chat;
+
+            pic.Location =
+                new Point(141, 90);
+
+            Label lblTitle =
+                new Label();
+
+            lblTitle.Text =
+                title;
+
+            lblTitle.Font =
+                new Font(
+                    "Segoe UI",
+                    16,
+                    FontStyle.Bold
+                );
+
+            lblTitle.ForeColor =
+                Color.FromArgb(74, 157, 127);
+
+            lblTitle.AutoSize =
+                true;
+
+            lblTitle.Location =
+                new Point(75, 200);
+
+            Label lblSubtitle =
+                new Label();
+
+            lblSubtitle.Text =
+                subtitle;
+
+            lblSubtitle.Font =
+                new Font(
+                    "Segoe UI",
+                    10
+                );
+
+            lblSubtitle.ForeColor =
+                Color.Gray;
+
+            lblSubtitle.AutoSize =
+                true;
+
+            lblSubtitle.Location =
+                new Point(55, 240);
+
+            emptyPanel.Controls.Add(pic);
+
+            emptyPanel.Controls.Add(lblTitle);
+
+            emptyPanel.Controls.Add(lblSubtitle);
+
+            flowMessages.Controls.Add(emptyPanel);
         }
 
         // =========================
