@@ -30,8 +30,16 @@ namespace reHUB
         }
         public MainForm()
         {
+            Guest = UserSession.IsGuest;
             InitializeComponent();
-            LoadForm(new Dashboard(this));
+            if (Guest)
+            {
+                LoadForm(new Dashboard(this, true));
+            }
+            else
+            {
+                LoadForm(new Dashboard(this));
+            }
             this.StartPosition = FormStartPosition.CenterScreen;
         }
 

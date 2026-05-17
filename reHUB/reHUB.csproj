@@ -133,6 +133,12 @@
     <Compile Include="HubDetails.Designer.cs">
       <DependentUpon>HubDetails.cs</DependentUpon>
     </Compile>
+    <Compile Include="LeaveGroup.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LeaveGroup.Designer.cs">
+      <DependentUpon>LeaveGroup.cs</DependentUpon>
+    </Compile>
     <Compile Include="Logs.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -219,6 +225,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="HubDetails.resx">
       <DependentUpon>HubDetails.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LeaveGroup.resx">
+      <DependentUpon>LeaveGroup.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Logs.resx">
       <DependentUpon>Logs.cs</DependentUpon>
