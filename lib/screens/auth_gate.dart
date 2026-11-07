@@ -7,7 +7,7 @@ import '../services/user_service.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
 import 'auth/sign_in_screen.dart';
-import 'home/home_placeholder.dart';
+import 'shell/app_shell.dart';
 import 'onboarding/onboarding_flow.dart';
 
 /// Decides what to show:
@@ -29,7 +29,7 @@ class AuthGate extends StatelessWidget {
 
         // Guests are browse-only: no onboarding, nothing saved.
         if (user.isAnonymous) {
-          return HomePlaceholder(user: user, profile: const {});
+          return AppShell(user: user, profile: const {});
         }
 
         return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
@@ -45,7 +45,7 @@ class AuthGate extends StatelessWidget {
             if (profile == null || profile['onboarded'] != true) {
               return OnboardingFlow(user: user);
             }
-            return HomePlaceholder(user: user, profile: profile);
+            return AppShell(user: user, profile: profile);
           },
         );
       },
