@@ -9,6 +9,13 @@ reHUB helps people replace old habits with healthy ones by connecting them throu
 
 Built with **Flutter** and **Firebase**. Runs on Android and the web.
 
+<p>
+  <img src="screenshots/home.png" width="200">
+  <img src="screenshots/hub.png" width="200">
+  <img src="screenshots/feed.png" width="200">
+  <img src="screenshots/checkin.png" width="200">
+</p>
+
 ---
 
 ## Features
