@@ -25,6 +25,18 @@ service cloud.firestore {
       match /checkins/{day} {
         allow read, write: if isMe(uid) && isRealUser();
       }
+      // Private list of posts you wrote (keeps anonymous posts anonymous).
+      match /posts/{postId} {
+        allow read, write: if isMe(uid) && isRealUser();
+      }
+      // Private list of comments you wrote.
+      match /comments/{commentId} {
+        allow read, write: if isMe(uid) && isRealUser();
+      }
+      // Private list of your reactions.
+      match /reactions/{postId} {
+        allow read, write: if isMe(uid) && isRealUser();
+      }
     }
 
     // ---------- hubs ----------
@@ -39,9 +51,8 @@ service cloud.firestore {
       // Hubs are created/deleted from the Firebase console for now.
       allow create, delete: if false;
 
-      // The only change the app may make is the member count, by exactly
-      // +1 when you join (your member doc appears) or -1 when you leave
-      // (your member doc disappears). This stops anyone faking counts.
+      // Only the member count may change: +1 when you join (your member
+      // doc appears) or -1 when you leave (it disappears).
       allow update: if isRealUser()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['memberCount'])
         && (
@@ -52,11 +63,107 @@ service cloud.firestore {
             && exists(memberPath()) && !existsAfter(memberPath()))
         );
 
-      // Membership: you can only add or remove yourself.
+      // Membership: you can only add/remove (and read) yourself.
       match /members/{uid} {
-        allow read: if signedIn();
+        allow read: if isMe(uid);
         allow create: if isMe(uid) && isRealUser();
         allow delete: if isMe(uid);
+        allow update: if false;
+      }
+    }
+
+    // ---------- posts ----------
+    match /posts/{postId} {
+      function myMarker() {
+        return /databases/$(database)/documents/users/$(request.auth.uid)/posts/$(postId);
+      }
+      function okDelta(k) {
+        let before = resource.data.reactions.get(k, 0);
+        let after = request.resource.data.reactions.get(k, 0);
+        return after >= 0 && after - before >= -1 && after - before <= 1;
+      }
+      function okCommentDelta() {
+        let before = resource.data.get('commentCount', 0);
+        let after = request.resource.data.commentCount;
+        return after >= 0 && after - before >= -1 && after - before <= 1;
+      }
+
+      function isHubMember(hubId) {
+        return exists(/databases/$(database)/documents/hubs/$(hubId)/members/$(request.auth.uid));
+      }
+
+      // Posts are private to their hub: only members can read them.
+      allow read: if isRealUser() && isHubMember(resource.data.hubId);
+
+      // Post to a hub you're a member of. No author id is stored.
+      allow create: if isRealUser()
+        && existsAfter(myMarker())
+        && exists(/databases/$(database)/documents/hubs/$(request.resource.data.hubId)/members/$(request.auth.uid))
+        && request.resource.data.keys().hasOnly(
+             ['hubId', 'hubName', 'authorName', 'anonymous', 'body', 'createdAt',
+              'reactions', 'commentCount'])
+        && request.resource.data.body is string
+        && request.resource.data.body.size() > 0
+        && request.resource.data.body.size() <= 1000
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.reactions == {'support': 0, 'proud': 0, 'relate': 0}
+        && request.resource.data.commentCount == 0
+        && (
+          (request.resource.data.anonymous == true
+            && request.resource.data.authorName == null)
+          ||
+          (request.resource.data.anonymous == false
+            && request.resource.data.authorName is string)
+        );
+
+      // Reactions or comment count: may only move by one at a time.
+      // ('encourage' only exists on older posts.)
+      allow update: if isRealUser() && isHubMember(resource.data.hubId) && (
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reactions'])
+          && request.resource.data.reactions.keys().hasOnly(
+               ['support', 'proud', 'relate', 'encourage'])
+          && okDelta('support') && okDelta('proud')
+          && okDelta('relate') && okDelta('encourage'))
+        ||
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['commentCount'])
+          && okCommentDelta())
+      );
+
+      // Only the author can delete (checked via their private marker).
+      allow delete: if isRealUser() && exists(myMarker());
+
+      // ---------- comments ----------
+      match /comments/{commentId} {
+        function myCommentMarker() {
+          return /databases/$(database)/documents/users/$(request.auth.uid)/comments/$(commentId);
+        }
+        function postHub() {
+          return get(/databases/$(database)/documents/posts/$(postId)).data.hubId;
+        }
+
+        // Comments are private to the post's hub, like the post itself.
+        allow read: if isRealUser()
+          && exists(/databases/$(database)/documents/hubs/$(postHub())/members/$(request.auth.uid));
+
+        // Only members of the post's hub can comment. No author id stored.
+        allow create: if isRealUser()
+          && existsAfter(myCommentMarker())
+          && exists(/databases/$(database)/documents/hubs/$(postHub())/members/$(request.auth.uid))
+          && request.resource.data.keys().hasOnly(
+               ['authorName', 'anonymous', 'body', 'createdAt'])
+          && request.resource.data.body is string
+          && request.resource.data.body.size() > 0
+          && request.resource.data.body.size() <= 500
+          && request.resource.data.createdAt == request.time
+          && (
+            (request.resource.data.anonymous == true
+              && request.resource.data.authorName == null)
+            ||
+            (request.resource.data.anonymous == false
+              && request.resource.data.authorName is string)
+          );
+
+        allow delete: if isRealUser() && exists(myCommentMarker());
         allow update: if false;
       }
     }

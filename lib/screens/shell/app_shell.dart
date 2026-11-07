@@ -37,7 +37,7 @@ class _AppShellState extends State<AppShell> {
   Widget build(BuildContext context) {
     final pages = [
       HomeScreen(user: widget.user, profile: widget.profile, onGoTo: _goTo),
-      FeedScreen(user: widget.user),
+      FeedScreen(user: widget.user, profile: widget.profile),
       ChatScreen(user: widget.user),
       ProfileScreen(user: widget.user, profile: widget.profile),
     ];
