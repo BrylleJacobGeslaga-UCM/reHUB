@@ -13,6 +13,8 @@ import '../../widgets/bottom_action.dart';
 import '../../widgets/screen_header.dart';
 import '../../widgets/sheets.dart';
 import '../chat/chat_room_screen.dart';
+import 'events_section.dart';
+import 'leader_card.dart';
 
 /// Opens a hub's page from anywhere in the app.
 void openHub(BuildContext context, User user, String hubId) {
@@ -92,23 +94,18 @@ class HubDetailScreen extends StatelessWidget {
                             Text(hub.description,
                                 style: AppText.body
                                     .copyWith(color: AppColors.textMuted)),
-                            if (hub.leaderName != null) ...[
+                            if (hub.founderName != null &&
+                                hub.founderName != hub.leaderName) ...[
                               const SizedBox(height: 10),
-                              Row(
-                                children: [
-                                  const Icon(Icons.verified_user_outlined,
-                                      size: 16, color: AppColors.primary),
-                                  const SizedBox(width: 6),
-                                  Text('Started by ${hub.leaderName}',
-                                      style: AppText.caption.copyWith(
-                                          color: AppColors.primary,
-                                          fontWeight: FontWeight.w600)),
-                                ],
-                              ),
+                              Text('Started by ${hub.founderName}',
+                                  style: AppText.caption
+                                      .copyWith(color: AppColors.textMuted)),
                             ],
                           ],
                         ),
                       ),
+                      const SizedBox(height: 14),
+                      LeaderCard(user: user, hub: hub),
                       const SizedBox(height: 14),
                       AppCard(
                         padding: const EdgeInsets.all(18),
@@ -163,23 +160,11 @@ class HubDetailScreen extends StatelessWidget {
                         ),
                       ],
                       const SizedBox(height: 24),
-                      Row(
-                        children: [
-                          const Icon(Icons.event_outlined,
-                              size: 20, color: AppColors.primary),
-                          const SizedBox(width: 8),
-                          Text('Upcoming activities', style: AppText.title),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      AppCard(
-                        padding: const EdgeInsets.all(18),
-                        child: Text(
-                          'No activities scheduled yet. Meetups and '
-                          'sessions will be posted here.',
-                          style: AppText.caption
-                              .copyWith(color: AppColors.textMuted),
-                        ),
+                      EventsSection(
+                        user: user,
+                        hub: hub,
+                        joined: joined,
+                        myName: name,
                       ),
                     ],
                   ),
@@ -223,6 +208,29 @@ class _JoinButtonState extends State<_JoinButton> {
     if (widget.user.isAnonymous) {
       await showGuestPrompt(context, action: 'join hubs');
       return;
+    }
+    final isLeader = widget.joined && widget.hub.leaderId == widget.user.uid;
+    if (isLeader) {
+      final ok = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Leave ${widget.hub.name}?'),
+          content: const Text(
+              'You’re this hub’s leader. If you leave, you’ll stop being its '
+              'leader and admins will look after it until a new leader is '
+              'chosen.'),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Stay')),
+            TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Leave',
+                    style: TextStyle(color: AppColors.danger))),
+          ],
+        ),
+      );
+      if (ok != true) return;
     }
     setState(() => _busy = true);
     try {

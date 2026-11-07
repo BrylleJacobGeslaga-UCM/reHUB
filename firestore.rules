@@ -104,6 +104,10 @@ service cloud.firestore {
     // Your profile: only you can read or change it.
     match /users/{uid} {
       allow read, write: if isMe(uid);
+      // Admins may only add a hub to someone's joined list (when approving
+      // the hub they suggested). Nothing else on the profile.
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['joinedHubs']);
 
       // Daily check-ins are private: only you, and never guests.
       match /checkins/{day} {
@@ -139,8 +143,9 @@ service cloud.firestore {
       // Only admins create or remove hubs (approving a suggestion).
       allow create, delete: if isAdmin();
 
-      // Only the member count may change: +1 when you join (your member
-      // doc appears) or -1 when you leave (it disappears).
+      // Members may only change the member count: +1 when they join (their
+      // member doc appears) or -1 when they leave (it disappears). A leader
+      // who leaves also clears the leader fields in the same write.
       allow update: if isAdmin() || isRealUser()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['memberCount'])
         && (
@@ -149,7 +154,17 @@ service cloud.firestore {
           ||
           (request.resource.data.memberCount == resource.data.memberCount - 1
             && exists(memberPath()) && !existsAfter(memberPath()))
-        );
+        )
+        || isRealUser()
+        && resource.data.get('leaderId', '') == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['memberCount', 'leaderId', 'leaderName', 'founderName'])
+        && !('leaderId' in request.resource.data)
+        && !('leaderName' in request.resource.data)
+        && request.resource.data.get('founderName', '') in
+             [resource.data.get('founderName', ''), resource.data.get('leaderName', '')]
+        && request.resource.data.memberCount == resource.data.memberCount - 1
+        && exists(memberPath()) && !existsAfter(memberPath());
 
       // Group chat: members only. Messages can't be edited; only the
       // sender can delete their own.
@@ -170,10 +185,66 @@ service cloud.firestore {
         allow update: if false;
       }
 
+      // ---------- activities ----------
+      match /events/{eventId} {
+        // Hub leader (whoever suggested the hub) or an admin.
+        function canManage() {
+          return isAdmin() || (isRealUser()
+            && get(/databases/$(database)/documents/hubs/$(hubId)).data.get('leaderId', '') == request.auth.uid);
+        }
+        function goingPath() {
+          return /databases/$(database)/documents/hubs/$(hubId)/events/$(eventId)/going/$(request.auth.uid);
+        }
+
+        // Meetup details are for members only.
+        allow read: if isAdmin() || (isRealUser() && exists(memberPath()));
+
+        allow create: if canManage()
+          && request.resource.data.keys().hasOnly(
+               ['title', 'startsAt', 'place', 'details', 'createdBy',
+                'createdByName', 'goingCount', 'createdAt'])
+          && request.resource.data.title is string
+          && request.resource.data.title.size() >= 3
+          && request.resource.data.title.size() <= 60
+          && request.resource.data.place is string
+          && request.resource.data.place.size() <= 100
+          && request.resource.data.details is string
+          && request.resource.data.details.size() <= 500
+          && request.resource.data.startsAt is timestamp
+          && request.resource.data.startsAt > request.time
+          && request.resource.data.createdBy == request.auth.uid
+          && request.resource.data.goingCount == 0
+          && request.resource.data.createdAt == request.time;
+
+        allow delete: if canManage();
+
+        // RSVP count: +1 / -1 only, matching your own RSVP doc.
+        allow update: if isAdmin() || (isRealUser()
+          && exists(memberPath())
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['goingCount'])
+          && (
+            (request.resource.data.goingCount == resource.data.goingCount + 1
+              && !exists(goingPath()) && existsAfter(goingPath()))
+            ||
+            (request.resource.data.goingCount == resource.data.goingCount - 1
+              && exists(goingPath()) && !existsAfter(goingPath()))
+          ));
+
+        match /going/{uid} {
+          allow read: if isMe(uid);
+          allow create: if isMe(uid) && isRealUser() && exists(memberPath());
+          allow delete: if isMe(uid);
+          allow update: if false;
+        }
+      }
+
       // Membership: you can only add/remove (and read) yourself.
       match /members/{uid} {
-        allow read: if isMe(uid);
-        allow create: if isMe(uid) && isRealUser();
+        // You can see your own membership; admins see the list to pick
+        // a hub leader.
+        allow read: if isMe(uid) || isAdmin();
+        // You add yourself; admins add a hub's leader when approving it.
+        allow create: if (isMe(uid) && isRealUser()) || isAdmin();
         allow delete: if isMe(uid);
         allow update: if false;
       }

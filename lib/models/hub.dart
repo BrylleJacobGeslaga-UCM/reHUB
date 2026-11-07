@@ -12,6 +12,8 @@ class Hub {
     required this.description,
     this.memberCount = 0,
     this.leaderName,
+    this.leaderId,
+    this.founderName,
   });
 
   final String id;
@@ -27,8 +29,16 @@ class Hub {
   final String description;
   final int memberCount;
 
-  /// Who suggested the hub (null for the starter hubs).
+  /// The current hub leader (null when admins manage the hub).
   final String? leaderName;
+
+  /// The hub leader's user id; they can add activities.
+  final String? leaderId;
+
+  /// Who originally suggested the hub. Kept even if they step down.
+  final String? founderName;
+
+  bool get hasLeader => leaderId != null && leaderName != null;
 
   String get modeLabel => online ? 'Online' : 'Outdoors';
 
@@ -58,6 +68,8 @@ class Hub {
       description: d['description'] as String? ?? '',
       memberCount: (d['memberCount'] as num?)?.toInt() ?? 0,
       leaderName: d['leaderName'] as String?,
+      leaderId: d['leaderId'] as String?,
+      founderName: d['founderName'] as String?,
     );
   }
 

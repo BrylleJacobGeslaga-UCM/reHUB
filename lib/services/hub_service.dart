@@ -73,13 +73,48 @@ class HubService {
     return _db.runTransaction((tx) async {
       final member = await tx.get(memberRef);
       if (!member.exists) return;
+      final hub = await tx.get(hubRef);
+      final data = hub.data() ?? const {};
       tx.delete(memberRef);
-      tx.update(hubRef, {'memberCount': FieldValue.increment(-1)});
+
+      final updates = <String, dynamic>{
+        'memberCount': FieldValue.increment(-1),
+      };
+      // The leader leaving gives up leadership; admins take over until
+      // they assign someone new. Remember who started the hub.
+      if (data['leaderId'] == user.uid) {
+        updates['leaderId'] = FieldValue.delete();
+        updates['leaderName'] = FieldValue.delete();
+        updates['founderName'] = data['founderName'] ?? data['leaderName'];
+      }
+      tx.update(hubRef, updates);
       tx.set(
         userRef,
         {'joinedHubs': FieldValue.arrayRemove([hubId])},
         SetOptions(merge: true),
       );
     });
+  }
+
+  /// Admins: the hub's members (to pick a new leader).
+  Stream<List<({String uid, String name})>> members(String hubId) => _hubs
+      .doc(hubId)
+      .collection('members')
+      .snapshots()
+      .map((s) => s.docs
+          .map((d) => (uid: d.id, name: d.data()['name'] as String? ?? 'Member'))
+          .toList()
+        ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase())));
+
+  /// Admins: make a member the leader, or pass null to remove the leader.
+  Future<void> setLeader(String hubId, {String? uid, String? name}) {
+    final hubRef = _hubs.doc(hubId);
+    if (uid == null) {
+      return hubRef.update({
+        'leaderId': FieldValue.delete(),
+        'leaderName': FieldValue.delete(),
+      });
+    }
+    return hubRef.update({'leaderId': uid, 'leaderName': name ?? 'Member'});
   }
 }

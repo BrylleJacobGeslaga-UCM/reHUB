@@ -57,7 +57,8 @@ class HubRequestService {
 
   Future<void> cancel(String requestId) => _requests.doc(requestId).delete();
 
-  /// Creates the real hub and marks the request approved, in one batch.
+  /// Creates the real hub, makes the suggester its first member (they're
+  /// the hub leader), and marks the request approved, all in one batch.
   Future<void> approve(HubRequest r) {
     final slug = r.name
         .toLowerCase()
@@ -74,11 +75,21 @@ class HubRequestService {
       'iconKey': r.interest,
       'online': r.online,
       'description': r.description,
-      'memberCount': 0,
+      'memberCount': 1,
       'leaderId': r.requestedBy,
       'leaderName': r.requesterName,
+      'founderName': r.requesterName,
       'requestId': r.id,
       'createdAt': FieldValue.serverTimestamp(),
+    });
+    // The leader joins their own hub automatically.
+    batch.set(hubRef.collection('members').doc(r.requestedBy), {
+      'name': r.requesterName,
+      'joinedAt': FieldValue.serverTimestamp(),
+      'role': 'leader',
+    });
+    batch.update(_db.collection('users').doc(r.requestedBy), {
+      'joinedHubs': FieldValue.arrayUnion([hubRef.id]),
     });
     batch.update(_requests.doc(r.id), {
       'status': RequestStatus.approved.name,
