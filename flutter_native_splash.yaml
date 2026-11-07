@@ -1,0 +1,9 @@
+# Paste this at the very bottom of pubspec.yaml (no indentation).
+flutter_native_splash:
+  color: "#1F6B4C"
+  image: assets/splash/splash_logo.png
+  android_12:
+    color: "#1F6B4C"
+    image: assets/splash/splash_logo.png
+  web: true
+  fullscreen: false

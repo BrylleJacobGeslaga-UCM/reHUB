@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 import '../services/auth_service.dart';
 import '../services/user_service.dart';
@@ -25,11 +26,11 @@ class AuthGate extends StatelessWidget {
           return const _Loading();
         }
         final user = authSnap.data;
-        if (user == null) return const SignInScreen();
+        if (user == null) return _ready(const SignInScreen());
 
         // Guests are browse-only: no onboarding, nothing saved.
         if (user.isAnonymous) {
-          return AppShell(user: user, profile: const {});
+          return _ready(AppShell(user: user, profile: const {}));
         }
 
         return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
@@ -37,15 +38,15 @@ class AuthGate extends StatelessWidget {
           stream: UserService.instance.userDoc(user.uid),
           builder: (context, docSnap) {
             if (docSnap.hasError) {
-              return _ErrorScreen(message: docSnap.error.toString());
+              return _ready(_ErrorScreen(message: docSnap.error.toString()));
             }
             if (!docSnap.hasData) return const _Loading();
 
             final profile = docSnap.data!.data();
             if (profile == null || profile['onboarded'] != true) {
-              return OnboardingFlow(user: user);
+              return _ready(OnboardingFlow(user: user));
             }
-            return AppShell(user: user, profile: profile);
+            return _ready(AppShell(user: user, profile: profile));
           },
         );
       },
@@ -53,14 +54,18 @@ class AuthGate extends StatelessWidget {
   }
 }
 
+/// Hides the native splash screen the first time a real screen is ready.
+Widget _ready(Widget screen) {
+  FlutterNativeSplash.remove();
+  return screen;
+}
+
 class _Loading extends StatelessWidget {
   const _Loading();
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: CircularProgressIndicator(color: AppColors.primary)),
-    );
+    return const Scaffold(backgroundColor: AppColors.primary);
   }
 }
 
