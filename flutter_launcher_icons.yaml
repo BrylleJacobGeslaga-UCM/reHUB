@@ -1,0 +1,15 @@
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/icon/icon.png"
+  min_sdk_android: 21
+  # Modern Android (adaptive icons): green background + logo on top.
+  adaptive_icon_background: "#1F6B4C"
+  adaptive_icon_foreground: "assets/icon/icon_foreground.png"
+  # Android 13+ "Themed icons" setting.
+  adaptive_icon_monochrome: "assets/icon/icon_monochrome.png"
+  web:
+    generate: true
+    image_path: "assets/icon/icon.png"
+    background_color: "#1F6B4C"
+    theme_color: "#1F6B4C"
