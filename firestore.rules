@@ -1,0 +1,64 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- helpers ----------
+    function signedIn() {
+      return request.auth != null;
+    }
+    // Signed in with a real account (not "Continue as guest").
+    function isRealUser() {
+      return signedIn()
+        && request.auth.token.firebase.sign_in_provider != 'anonymous';
+    }
+    function isMe(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    // ---------- users ----------
+    // Your profile: only you can read or change it.
+    match /users/{uid} {
+      allow read, write: if isMe(uid);
+
+      // Daily check-ins are private: only you, and never guests.
+      match /checkins/{day} {
+        allow read, write: if isMe(uid) && isRealUser();
+      }
+    }
+
+    // ---------- hubs ----------
+    match /hubs/{hubId} {
+      function memberPath() {
+        return /databases/$(database)/documents/hubs/$(hubId)/members/$(request.auth.uid);
+      }
+
+      // Anyone signed in (including guests) can browse hubs.
+      allow read: if signedIn();
+
+      // Hubs are created/deleted from the Firebase console for now.
+      allow create, delete: if false;
+
+      // The only change the app may make is the member count, by exactly
+      // +1 when you join (your member doc appears) or -1 when you leave
+      // (your member doc disappears). This stops anyone faking counts.
+      allow update: if isRealUser()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['memberCount'])
+        && (
+          (request.resource.data.memberCount == resource.data.memberCount + 1
+            && !exists(memberPath()) && existsAfter(memberPath()))
+          ||
+          (request.resource.data.memberCount == resource.data.memberCount - 1
+            && exists(memberPath()) && !existsAfter(memberPath()))
+        );
+
+      // Membership: you can only add or remove yourself.
+      match /members/{uid} {
+        allow read: if signedIn();
+        allow create: if isMe(uid) && isRealUser();
+        allow delete: if isMe(uid);
+        allow update: if false;
+      }
+    }
+  }
+}
