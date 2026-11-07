@@ -83,6 +83,10 @@ service cloud.firestore {
       match /comments/{commentId} {
         allow read, write: if isMe(uid) && isRealUser();
       }
+      // When you last opened each hub chat (for unread dots).
+      match /chatReads/{hubId} {
+        allow read, write: if isMe(uid) && isRealUser();
+      }
       // Private list of your reactions.
       match /reactions/{postId} {
         allow read, write: if isMe(uid) && isRealUser();
@@ -112,6 +116,25 @@ service cloud.firestore {
           (request.resource.data.memberCount == resource.data.memberCount - 1
             && exists(memberPath()) && !existsAfter(memberPath()))
         );
+
+      // Group chat: members only. Messages can't be edited; only the
+      // sender can delete their own.
+      match /messages/{messageId} {
+        allow read: if isRealUser() && exists(memberPath());
+        allow create: if isRealUser()
+          && exists(memberPath())
+          && request.resource.data.keys().hasOnly(
+               ['senderId', 'senderName', 'body', 'createdAt'])
+          && request.resource.data.senderId == request.auth.uid
+          && request.resource.data.senderName is string
+          && request.resource.data.body is string
+          && request.resource.data.body.size() > 0
+          && request.resource.data.body.size() <= 1000
+          && request.resource.data.createdAt == request.time;
+        allow delete: if isRealUser()
+          && resource.data.senderId == request.auth.uid;
+        allow update: if false;
+      }
 
       // Membership: you can only add/remove (and read) yourself.
       match /members/{uid} {

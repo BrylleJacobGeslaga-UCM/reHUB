@@ -12,6 +12,7 @@ import '../../widgets/app_card.dart';
 import '../../widgets/bottom_action.dart';
 import '../../widgets/screen_header.dart';
 import '../../widgets/sheets.dart';
+import '../chat/chat_room_screen.dart';
 
 /// Opens a hub's page from anywhere in the app.
 void openHub(BuildContext context, User user, String hubId) {
@@ -132,6 +133,35 @@ class HubDetailScreen extends StatelessWidget {
                           ],
                         ),
                       ),
+                      if (joined) ...[
+                        const SizedBox(height: 14),
+                        AppCard(
+                          onTap: () => openChatRoom(context, user, hub),
+                          padding: const EdgeInsets.all(18),
+                          child: Row(
+                            children: [
+                              const IconTile(
+                                  icon: Icons.chat_bubble_outline_rounded,
+                                  size: 40),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Group chat',
+                                        style: AppText.bodyStrong),
+                                    Text('Talk with other members',
+                                        style: AppText.caption.copyWith(
+                                            color: AppColors.textMuted)),
+                                  ],
+                                ),
+                              ),
+                              const Icon(Icons.chevron_right_rounded,
+                                  color: AppColors.textMuted),
+                            ],
+                          ),
+                        ),
+                      ],
                       const SizedBox(height: 24),
                       Row(
                         children: [
