@@ -8,7 +8,9 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_text.dart';
 import '../../widgets/app_button.dart';
 import '../../widgets/empty_state.dart';
+import '../../models/report.dart';
 import '../../widgets/post_card.dart';
+import '../../widgets/report_sheet.dart';
 import '../../widgets/screen_header.dart';
 import '../../widgets/sheets.dart';
 import '../auth/sign_up_screen.dart';
@@ -70,6 +72,20 @@ class _FeedScreenState extends State<FeedScreen> {
 
   void _comments(Post post) => openComments(context,
       user: widget.user, profile: widget.profile, postId: post.id);
+
+  void _report(Post post) => showReportSheet(
+        context,
+        user: widget.user,
+        target: ReportTarget(
+          type: ReportType.post,
+          path: 'posts/${post.id}',
+          hubId: post.hubId,
+          hubName: post.hubName,
+          postId: post.id,
+          preview: post.body,
+          authorName: post.displayName,
+        ),
+      );
 
   Future<void> _react(Post post, Reaction r) async {
     try {
@@ -188,6 +204,7 @@ class _FeedScreenState extends State<FeedScreen> {
                           onReact: (r) => _react(p, r),
                           onComment: () => _comments(p),
                           onDelete: () => _delete(p),
+                          onReport: () => _report(p),
                         ),
                       ),
                   ],

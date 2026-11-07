@@ -21,6 +21,40 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
 
+    function isMemberOf(hubId) {
+      return exists(/databases/$(database)/documents/hubs/$(hubId)/members/$(request.auth.uid));
+    }
+
+    // ---------- reports ----------
+    // Only admins can read reports. Members can file one report per piece
+    // of content (the id includes their uid, and reports can't be
+    // overwritten).
+    match /reports/{reportId} {
+      allow read: if isAdmin();
+      allow create: if isRealUser()
+        && reportId.matches('.*_' + request.auth.uid)
+        && request.resource.data.reportedBy == request.auth.uid
+        && request.resource.data.keys().hasOnly(
+             ['type', 'path', 'hubId', 'hubName', 'postId', 'preview',
+              'authorName', 'reason', 'details', 'reportedBy', 'status',
+              'createdAt'])
+        && request.resource.data.type in ['post', 'comment', 'message']
+        && request.resource.data.reason in
+             ['harassment', 'substances', 'selfHarm', 'spam', 'other']
+        && request.resource.data.status == 'open'
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.preview is string
+        && request.resource.data.preview.size() <= 500
+        && request.resource.data.details is string
+        && request.resource.data.details.size() <= 300
+        && isMemberOf(request.resource.data.hubId);
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['status', 'reviewedAt'])
+        && request.resource.data.status in ['removed', 'dismissed'];
+      allow delete: if false;
+    }
+
     // ---------- admins ----------
     // You can check whether you yourself are an admin; nobody can edit this
     // from the app.
@@ -120,7 +154,7 @@ service cloud.firestore {
       // Group chat: members only. Messages can't be edited; only the
       // sender can delete their own.
       match /messages/{messageId} {
-        allow read: if isRealUser() && exists(memberPath());
+        allow read: if isAdmin() || (isRealUser() && exists(memberPath()));
         allow create: if isRealUser()
           && exists(memberPath())
           && request.resource.data.keys().hasOnly(
@@ -131,8 +165,8 @@ service cloud.firestore {
           && request.resource.data.body.size() > 0
           && request.resource.data.body.size() <= 1000
           && request.resource.data.createdAt == request.time;
-        allow delete: if isRealUser()
-          && resource.data.senderId == request.auth.uid;
+        allow delete: if isAdmin() || (isRealUser()
+          && resource.data.senderId == request.auth.uid);
         allow update: if false;
       }
 
@@ -166,7 +200,8 @@ service cloud.firestore {
       }
 
       // Posts are private to their hub: only members can read them.
-      allow read: if isRealUser() && isHubMember(resource.data.hubId);
+      allow read: if isAdmin()
+        || (isRealUser() && isHubMember(resource.data.hubId));
 
       // Post to a hub you're a member of. No author id is stored.
       allow create: if isRealUser()
@@ -191,7 +226,7 @@ service cloud.firestore {
 
       // Reactions or comment count: may only move by one at a time.
       // ('encourage' only exists on older posts.)
-      allow update: if isRealUser() && isHubMember(resource.data.hubId) && (
+      allow update: if isAdmin() || isRealUser() && isHubMember(resource.data.hubId) && (
         (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reactions'])
           && request.resource.data.reactions.keys().hasOnly(
                ['support', 'proud', 'relate', 'encourage'])
@@ -203,7 +238,7 @@ service cloud.firestore {
       );
 
       // Only the author can delete (checked via their private marker).
-      allow delete: if isRealUser() && exists(myMarker());
+      allow delete: if isAdmin() || (isRealUser() && exists(myMarker()));
 
       // ---------- comments ----------
       match /comments/{commentId} {
@@ -215,8 +250,8 @@ service cloud.firestore {
         }
 
         // Comments are private to the post's hub, like the post itself.
-        allow read: if isRealUser()
-          && exists(/databases/$(database)/documents/hubs/$(postHub())/members/$(request.auth.uid));
+        allow read: if isAdmin() || (isRealUser()
+          && exists(/databases/$(database)/documents/hubs/$(postHub())/members/$(request.auth.uid)));
 
         // Only members of the post's hub can comment. No author id stored.
         allow create: if isRealUser()
@@ -236,7 +271,8 @@ service cloud.firestore {
               && request.resource.data.authorName is string)
           );
 
-        allow delete: if isRealUser() && exists(myCommentMarker());
+        allow delete: if isAdmin()
+          || (isRealUser() && exists(myCommentMarker()));
         allow update: if false;
       }
     }

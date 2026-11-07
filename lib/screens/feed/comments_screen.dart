@@ -9,7 +9,9 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_text.dart';
 import '../../widgets/app_button.dart';
 import '../../widgets/app_card.dart';
+import '../../models/report.dart';
 import '../../widgets/post_card.dart';
+import '../../widgets/report_sheet.dart';
 import '../../widgets/screen_header.dart';
 import '../../widgets/sheets.dart';
 import '../hubs/hub_detail_screen.dart';
@@ -115,6 +117,9 @@ class _CommentsScreenState extends State<CommentsScreen> {
     }
   }
 
+  void _report(ReportTarget target) =>
+      showReportSheet(context, user: widget.user, target: target);
+
   Future<void> _react(Reaction r) async {
     if (_isGuest) {
       await showGuestPrompt(context, action: 'react to posts');
@@ -178,6 +183,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
                             post: post,
                             onReact: _react,
                             onDelete: _delete,
+                            onReport: _report,
                           ),
                         ),
                     ],
@@ -224,12 +230,14 @@ class _Thread extends StatelessWidget {
     required this.post,
     required this.onReact,
     required this.onDelete,
+    required this.onReport,
   });
 
   final User user;
   final Post post;
   final ValueChanged<Reaction> onReact;
   final ValueChanged<Comment> onDelete;
+  final ValueChanged<ReportTarget> onReport;
 
   @override
   Widget build(BuildContext context) {
@@ -275,6 +283,15 @@ class _Thread extends StatelessWidget {
                               comment: c,
                               isMine: mine.contains(c.id),
                               onDelete: () => onDelete(c),
+                              onReport: () => onReport(ReportTarget(
+                                type: ReportType.comment,
+                                path: 'posts/${post.id}/comments/${c.id}',
+                                hubId: post.hubId,
+                                hubName: post.hubName,
+                                postId: post.id,
+                                preview: c.body,
+                                authorName: c.displayName,
+                              )),
                             ),
                           ),
                       ],
@@ -295,11 +312,13 @@ class _CommentTile extends StatelessWidget {
     required this.comment,
     required this.isMine,
     required this.onDelete,
+    required this.onReport,
   });
 
   final Comment comment;
   final bool isMine;
   final VoidCallback onDelete;
+  final VoidCallback onReport;
 
   @override
   Widget build(BuildContext context) {
@@ -349,7 +368,12 @@ class _CommentTile extends StatelessWidget {
                   size: 20, color: AppColors.textSubtle),
             )
           else
-            const SizedBox(width: 10),
+            IconButton(
+              tooltip: 'Report comment',
+              onPressed: onReport,
+              icon: const Icon(Icons.outlined_flag_rounded,
+                  size: 20, color: AppColors.textSubtle),
+            ),
         ],
       ),
     );

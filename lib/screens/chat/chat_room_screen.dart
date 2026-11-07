@@ -7,7 +7,9 @@ import '../../services/chat_service.dart';
 import '../../services/user_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text.dart';
+import '../../models/report.dart';
 import '../../widgets/app_card.dart';
+import '../../widgets/report_sheet.dart';
 import '../../widgets/screen_header.dart';
 
 void openChatRoom(BuildContext context, User user, Hub hub) {
@@ -171,7 +173,20 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                           message: m,
                           mine: mine,
                           showName: showName,
-                          onLongPress: mine ? () => _delete(m) : null,
+                          onLongPress: mine
+                              ? () => _delete(m)
+                              : () => showReportSheet(
+                                    context,
+                                    user: widget.user,
+                                    target: ReportTarget(
+                                      type: ReportType.message,
+                                      path: 'hubs/${widget.hub.id}/messages/${m.id}',
+                                      hubId: widget.hub.id,
+                                      hubName: widget.hub.name,
+                                      preview: m.body,
+                                      authorName: m.senderName,
+                                    ),
+                                  ),
                         ),
                       ],
                     );

@@ -15,6 +15,7 @@ class PostCard extends StatelessWidget {
     this.myReaction,
     this.isMine = false,
     this.onDelete,
+    this.onReport,
   });
 
   final Post post;
@@ -23,6 +24,7 @@ class PostCard extends StatelessWidget {
   final ValueChanged<Reaction> onReact;
   final VoidCallback onComment;
   final VoidCallback? onDelete;
+  final VoidCallback? onReport;
 
   @override
   Widget build(BuildContext context) {
@@ -74,14 +76,19 @@ class PostCard extends StatelessWidget {
                   ],
                 ),
               ),
-              if (isMine && onDelete != null)
+              if ((isMine && onDelete != null) || (!isMine && onReport != null))
                 PopupMenuButton<String>(
                   tooltip: 'Post options',
                   icon: const Icon(Icons.more_vert_rounded,
                       color: AppColors.textSubtle),
-                  onSelected: (_) => onDelete!(),
-                  itemBuilder: (_) => const [
-                    PopupMenuItem(value: 'delete', child: Text('Delete post')),
+                  onSelected: (v) => v == 'delete' ? onDelete!() : onReport!(),
+                  itemBuilder: (_) => [
+                    if (isMine)
+                      const PopupMenuItem(
+                          value: 'delete', child: Text('Delete post'))
+                    else
+                      const PopupMenuItem(
+                          value: 'report', child: Text('Report post')),
                   ],
                 ),
             ],

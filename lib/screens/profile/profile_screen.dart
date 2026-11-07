@@ -17,6 +17,9 @@ import '../auth/sign_up_screen.dart';
 import '../../models/hub_request.dart';
 import '../../services/hub_request_service.dart';
 import '../../widgets/request_status.dart';
+import '../../models/report.dart';
+import '../../services/report_service.dart';
+import '../admin/review_reports_screen.dart';
 import '../admin/review_requests_screen.dart';
 import '../hubs/hub_detail_screen.dart';
 
@@ -364,7 +367,7 @@ class _MyRequests extends StatelessWidget {
   }
 }
 
-/// Only shown to admins: a link to the review queue with a count.
+/// Only shown to admins: links to the review queues with counts.
 class _AdminEntry extends StatelessWidget {
   const _AdminEntry({required this.user});
   final User user;
@@ -375,58 +378,85 @@ class _AdminEntry extends StatelessWidget {
       stream: HubRequestService.instance.isAdmin(user.uid),
       builder: (context, adminSnap) {
         if (adminSnap.data != true) return const SizedBox.shrink();
-        return StreamBuilder<List<HubRequest>>(
-          stream: HubRequestService.instance.pending(),
-          builder: (context, snap) {
-            final count = snap.data?.length ?? 0;
-            return Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: AppCard(
+        return Column(
+          children: [
+            StreamBuilder<List<HubRequest>>(
+              stream: HubRequestService.instance.pending(),
+              builder: (context, snap) => _AdminCard(
+                icon: Icons.admin_panel_settings_outlined,
+                title: 'Review hub requests',
+                count: snap.data?.length ?? 0,
                 onTap: () => Navigator.of(context).push(MaterialPageRoute(
                     builder: (_) => const ReviewRequestsScreen())),
-                child: Row(
-                  children: [
-                    const IconTile(
-                        icon: Icons.admin_panel_settings_outlined, size: 44),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Review hub requests',
-                              style: AppText.bodyStrong),
-                          Text(
-                            count == 0
-                                ? 'Nothing waiting'
-                                : '$count waiting for review',
-                            style: AppText.caption
-                                .copyWith(color: AppColors.textMuted),
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (count > 0)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 9, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(999),
-                        ),
-                        child: Text('$count',
-                            style: AppText.label
-                                .copyWith(color: Colors.white)),
-                      ),
-                    const SizedBox(width: 6),
-                    const Icon(Icons.chevron_right_rounded,
-                        color: AppColors.textMuted),
-                  ],
-                ),
               ),
-            );
-          },
+            ),
+            StreamBuilder<List<Report>>(
+              stream: ReportService.instance.open(),
+              builder: (context, snap) => _AdminCard(
+                icon: Icons.flag_outlined,
+                title: 'Review reports',
+                count: snap.data?.length ?? 0,
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => const ReviewReportsScreen())),
+              ),
+            ),
+          ],
         );
       },
+    );
+  }
+}
+
+class _AdminCard extends StatelessWidget {
+  const _AdminCard({
+    required this.icon,
+    required this.title,
+    required this.count,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String title;
+  final int count;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: AppCard(
+        onTap: onTap,
+        child: Row(
+          children: [
+            IconTile(icon: icon, size: 44),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: AppText.bodyStrong),
+                  Text(
+                    count == 0 ? 'Nothing waiting' : '$count waiting for review',
+                    style: AppText.caption.copyWith(color: AppColors.textMuted),
+                  ),
+                ],
+              ),
+            ),
+            if (count > 0)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text('$count',
+                    style: AppText.label.copyWith(color: Colors.white)),
+              ),
+            const SizedBox(width: 6),
+            const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
+          ],
+        ),
+      ),
     );
   }
 }
