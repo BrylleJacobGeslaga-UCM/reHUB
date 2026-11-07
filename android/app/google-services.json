@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1095545727286",
+    "project_id": "rehub-cd2d9",
+    "storage_bucket": "rehub-cd2d9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1095545727286:android:2988a17e4500ba9900eb97",
+        "android_client_info": {
+          "package_name": "com.brylle.rehub"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8UstXsgtnFsoGqFG-gOKolcoG-U99p7I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
