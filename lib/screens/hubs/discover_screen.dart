@@ -5,10 +5,13 @@ import '../../models/hub.dart';
 import '../../services/hub_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text.dart';
+import '../../widgets/app_card.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/hub_row.dart';
 import '../../widgets/screen_header.dart';
+import '../../widgets/sheets.dart';
 import 'hub_detail_screen.dart';
+import 'request_hub_screen.dart';
 
 enum _Filter { all, online, outdoors }
 
@@ -70,6 +73,39 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                             setState(() => _filter = _Filter.outdoors),
                       ),
                     ],
+                  ),
+                  const SizedBox(height: 16),
+                  AppCard(
+                    color: AppColors.primaryTint,
+                    bordered: false,
+                    onTap: () => widget.user.isAnonymous
+                        ? showGuestPrompt(context, action: 'suggest hubs')
+                        : openRequestHub(context, widget.user,
+                            widget.user.displayName ?? 'Member'),
+                    child: Row(
+                      children: [
+                        const IconTile(
+                          icon: Icons.add_rounded,
+                          size: 44,
+                          color: AppColors.surface,
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Don’t see your thing?',
+                                  style: AppText.bodyStrong),
+                              Text('Suggest a hub. We’ll review it shortly.',
+                                  style: AppText.caption
+                                      .copyWith(color: AppColors.textMuted)),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.chevron_right_rounded,
+                            color: AppColors.primary),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 16),
                   StreamBuilder<List<Hub>>(

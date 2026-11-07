@@ -15,6 +15,56 @@ service cloud.firestore {
     function isMe(uid) {
       return signedIn() && request.auth.uid == uid;
     }
+    // Admins are listed in admins/{uid} (added by hand in the console).
+    function isAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // ---------- admins ----------
+    // You can check whether you yourself are an admin; nobody can edit this
+    // from the app.
+    match /admins/{uid} {
+      allow read: if isMe(uid);
+      allow write: if false;
+    }
+
+    // ---------- hub suggestions ----------
+    match /hubRequests/{requestId} {
+      // Only the person who asked, and admins, can see a request.
+      allow read: if isRealUser()
+        && (resource.data.requestedBy == request.auth.uid || isAdmin());
+
+      allow create: if isRealUser()
+        && request.resource.data.keys().hasOnly(
+             ['name', 'interest', 'online', 'description', 'requestedBy',
+              'requesterName', 'status', 'createdAt'])
+        && request.resource.data.requestedBy == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 3
+        && request.resource.data.name.size() <= 40
+        && request.resource.data.description is string
+        && request.resource.data.description.size() >= 20
+        && request.resource.data.description.size() <= 300
+        && request.resource.data.interest in
+             ['riding', 'gaming', 'sports', 'hiking', 'art', 'cooking',
+              'music', 'reading']
+        && request.resource.data.online is bool
+        && request.resource.data.requesterName is string;
+
+      // Admins approve or decline.
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['status', 'reviewNote', 'hubId', 'reviewedAt'])
+        && request.resource.data.status in ['approved', 'rejected'];
+
+      // The requester can withdraw while it's still pending.
+      allow delete: if isRealUser()
+        && resource.data.requestedBy == request.auth.uid
+        && resource.data.status == 'pending';
+    }
 
     // ---------- users ----------
     // Your profile: only you can read or change it.
@@ -48,12 +98,12 @@ service cloud.firestore {
       // Anyone signed in (including guests) can browse hubs.
       allow read: if signedIn();
 
-      // Hubs are created/deleted from the Firebase console for now.
-      allow create, delete: if false;
+      // Only admins create or remove hubs (approving a suggestion).
+      allow create, delete: if isAdmin();
 
       // Only the member count may change: +1 when you join (your member
       // doc appears) or -1 when you leave (it disappears).
-      allow update: if isRealUser()
+      allow update: if isAdmin() || isRealUser()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['memberCount'])
         && (
           (request.resource.data.memberCount == resource.data.memberCount + 1

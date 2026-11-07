@@ -91,6 +91,20 @@ class HubDetailScreen extends StatelessWidget {
                             Text(hub.description,
                                 style: AppText.body
                                     .copyWith(color: AppColors.textMuted)),
+                            if (hub.leaderName != null) ...[
+                              const SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  const Icon(Icons.verified_user_outlined,
+                                      size: 16, color: AppColors.primary),
+                                  const SizedBox(width: 6),
+                                  Text('Started by ${hub.leaderName}',
+                                      style: AppText.caption.copyWith(
+                                          color: AppColors.primary,
+                                          fontWeight: FontWeight.w600)),
+                                ],
+                              ),
+                            ],
                           ],
                         ),
                       ),

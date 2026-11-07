@@ -14,6 +14,10 @@ import '../../models/hub.dart';
 import '../../services/hub_service.dart';
 import '../../widgets/hub_row.dart';
 import '../auth/sign_up_screen.dart';
+import '../../models/hub_request.dart';
+import '../../services/hub_request_service.dart';
+import '../../widgets/request_status.dart';
+import '../admin/review_requests_screen.dart';
 import '../hubs/hub_detail_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -157,6 +161,8 @@ class ProfileScreen extends StatelessWidget {
                   _SectionTitle(icon: Icons.groups_outlined, title: 'Joined hubs'),
                   const SizedBox(height: 10),
                   _JoinedHubs(user: user, ids: joined),
+                  _MyRequests(user: user),
+                  _AdminEntry(user: user),
                 ],
                 const SizedBox(height: 24),
 
@@ -282,6 +288,143 @@ class _JoinedHubs extends StatelessWidget {
                 ),
               ),
           ],
+        );
+      },
+    );
+  }
+}
+
+/// Your hub suggestions and their status. Hidden if you have none.
+class _MyRequests extends StatelessWidget {
+  const _MyRequests({required this.user});
+  final User user;
+
+  Future<void> _cancel(BuildContext context, HubRequest r) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Cancel “${r.name}”?'),
+        content: const Text('Your suggestion will be withdrawn.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Keep it')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Withdraw',
+                  style: TextStyle(color: AppColors.danger))),
+        ],
+      ),
+    );
+    if (ok == true) await HubRequestService.instance.cancel(r.id);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<List<HubRequest>>(
+      stream: HubRequestService.instance.myRequests(user.uid),
+      builder: (context, snap) {
+        final requests = snap.data ?? const <HubRequest>[];
+        if (requests.isEmpty) return const SizedBox.shrink();
+        return Padding(
+          padding: const EdgeInsets.only(top: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const _SectionTitle(
+                  icon: Icons.outbox_outlined, title: 'Your hub suggestions'),
+              const SizedBox(height: 10),
+              for (final r in requests)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: RequestCard(
+                    request: r,
+                    onTap: r.status == RequestStatus.approved && r.hubId != null
+                        ? () => openHub(context, user, r.hubId!)
+                        : null,
+                    actions: r.status == RequestStatus.pending
+                        ? Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              onPressed: () => _cancel(context, r),
+                              child: Text('Withdraw',
+                                  style: AppText.caption.copyWith(
+                                      color: AppColors.danger,
+                                      fontWeight: FontWeight.w700)),
+                            ),
+                          )
+                        : null,
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Only shown to admins: a link to the review queue with a count.
+class _AdminEntry extends StatelessWidget {
+  const _AdminEntry({required this.user});
+  final User user;
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<bool>(
+      stream: HubRequestService.instance.isAdmin(user.uid),
+      builder: (context, adminSnap) {
+        if (adminSnap.data != true) return const SizedBox.shrink();
+        return StreamBuilder<List<HubRequest>>(
+          stream: HubRequestService.instance.pending(),
+          builder: (context, snap) {
+            final count = snap.data?.length ?? 0;
+            return Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: AppCard(
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => const ReviewRequestsScreen())),
+                child: Row(
+                  children: [
+                    const IconTile(
+                        icon: Icons.admin_panel_settings_outlined, size: 44),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Review hub requests',
+                              style: AppText.bodyStrong),
+                          Text(
+                            count == 0
+                                ? 'Nothing waiting'
+                                : '$count waiting for review',
+                            style: AppText.caption
+                                .copyWith(color: AppColors.textMuted),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (count > 0)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 9, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text('$count',
+                            style: AppText.label
+                                .copyWith(color: Colors.white)),
+                      ),
+                    const SizedBox(width: 6),
+                    const Icon(Icons.chevron_right_rounded,
+                        color: AppColors.textMuted),
+                  ],
+                ),
+              ),
+            );
+          },
         );
       },
     );

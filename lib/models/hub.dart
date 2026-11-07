@@ -11,6 +11,7 @@ class Hub {
     required this.online,
     required this.description,
     this.memberCount = 0,
+    this.leaderName,
   });
 
   final String id;
@@ -25,6 +26,9 @@ class Hub {
   final bool online;
   final String description;
   final int memberCount;
+
+  /// Who suggested the hub (null for the starter hubs).
+  final String? leaderName;
 
   String get modeLabel => online ? 'Online' : 'Outdoors';
 
@@ -53,6 +57,7 @@ class Hub {
       online: d['online'] as bool? ?? false,
       description: d['description'] as String? ?? '',
       memberCount: (d['memberCount'] as num?)?.toInt() ?? 0,
+      leaderName: d['leaderName'] as String?,
     );
   }
 
