@@ -14,6 +14,7 @@ import '../../widgets/screen_header.dart';
 import '../../widgets/sheets.dart';
 import '../chat/chat_room_screen.dart';
 import 'events_section.dart';
+import 'delete_hub_button.dart';
 import 'leader_card.dart';
 
 /// Opens a hub's page from anywhere in the app.
@@ -166,6 +167,7 @@ class HubDetailScreen extends StatelessWidget {
                         joined: joined,
                         myName: name,
                       ),
+                      DeleteHubButton(user: user, hub: hub),
                     ],
                   ),
                 ),

@@ -14,6 +14,7 @@ class Hub {
     this.leaderName,
     this.leaderId,
     this.founderName,
+    this.requestId,
   });
 
   final String id;
@@ -39,6 +40,12 @@ class Hub {
   final String? founderName;
 
   bool get hasLeader => leaderId != null && leaderName != null;
+
+  /// Set on hubs created by approving a member's suggestion.
+  final String? requestId;
+
+  /// The original 8 hubs. They can't be deleted.
+  bool get isStarter => requestId == null;
 
   String get modeLabel => online ? 'Online' : 'Outdoors';
 
@@ -70,6 +77,7 @@ class Hub {
       leaderName: d['leaderName'] as String?,
       leaderId: d['leaderId'] as String?,
       founderName: d['founderName'] as String?,
+      requestId: d['requestId'] as String?,
     );
   }
 

@@ -117,4 +117,51 @@ class HubService {
     }
     return hubRef.update({'leaderId': uid, 'leaderName': name ?? 'Member'});
   }
+
+  /// Admins: permanently delete a (non-starter) hub and everything in it:
+  /// posts and their comments, chat messages, activities, and memberships
+  /// (also removing it from each member's joined list).
+  Future<void> deleteHub(String hubId) async {
+    final hubRef = _hubs.doc(hubId);
+
+    final members = await hubRef.collection('members').get();
+    final toDelete = <DocumentReference<Map<String, dynamic>>>[
+      ...members.docs.map((d) => d.reference),
+      ...(await hubRef.collection('events').get()).docs.map((d) => d.reference),
+      ...(await hubRef.collection('messages').get())
+          .docs
+          .map((d) => d.reference),
+    ];
+    final posts =
+        await _db.collection('posts').where('hubId', isEqualTo: hubId).get();
+    for (final p in posts.docs) {
+      final comments = await p.reference.collection('comments').get();
+      toDelete.addAll(comments.docs.map((d) => d.reference));
+      toDelete.add(p.reference);
+    }
+
+    // Firestore batches hold up to 500 writes, so commit in chunks.
+    var batch = _db.batch();
+    var count = 0;
+    Future<void> add(void Function(WriteBatch b) write) async {
+      write(batch);
+      if (++count >= 400) {
+        await batch.commit();
+        batch = _db.batch();
+        count = 0;
+      }
+    }
+
+    for (final m in members.docs) {
+      await add((b) => b.update(_db.collection('users').doc(m.id), {
+            'joinedHubs': FieldValue.arrayRemove([hubId]),
+          }));
+    }
+    for (final ref in toDelete) {
+      await add((b) => b.delete(ref));
+    }
+    if (count > 0) await batch.commit();
+
+    await hubRef.delete();
+  }
 }

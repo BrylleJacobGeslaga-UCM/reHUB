@@ -140,8 +140,10 @@ service cloud.firestore {
       // Anyone signed in (including guests) can browse hubs.
       allow read: if signedIn();
 
-      // Only admins create or remove hubs (approving a suggestion).
-      allow create, delete: if isAdmin();
+      // Only admins create hubs (by approving a suggestion), and only
+      // suggested hubs can be deleted. The starter hubs are protected.
+      allow create: if isAdmin();
+      allow delete: if isAdmin() && resource.data.get('requestId', null) != null;
 
       // Members may only change the member count: +1 when they join (their
       // member doc appears) or -1 when they leave (it disappears). A leader
@@ -245,7 +247,7 @@ service cloud.firestore {
         allow read: if isMe(uid) || isAdmin();
         // You add yourself; admins add a hub's leader when approving it.
         allow create: if (isMe(uid) && isRealUser()) || isAdmin();
-        allow delete: if isMe(uid);
+        allow delete: if isMe(uid) || isAdmin();
         allow update: if false;
       }
     }

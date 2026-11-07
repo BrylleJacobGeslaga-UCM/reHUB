@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/hub.dart';
+import '../../models/onboarding_options.dart';
 import '../../services/hub_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text.dart';
@@ -27,12 +28,31 @@ class DiscoverScreen extends StatefulWidget {
 
 class _DiscoverScreenState extends State<DiscoverScreen> {
   _Filter _filter = _Filter.all;
+  final _search = TextEditingController();
+  String _query = '';
 
-  List<Hub> _apply(List<Hub> hubs) => switch (_filter) {
-        _Filter.all => hubs,
-        _Filter.online => hubs.where((h) => h.online).toList(),
-        _Filter.outdoors => hubs.where((h) => !h.online).toList(),
-      };
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
+  }
+
+  bool _matches(Hub h) {
+    if (_query.isEmpty) return true;
+    final q = _query.toLowerCase();
+    return h.name.toLowerCase().contains(q) ||
+        h.description.toLowerCase().contains(q) ||
+        labelFor(interestOptions, h.interest).toLowerCase().contains(q);
+  }
+
+  List<Hub> _apply(List<Hub> hubs) => hubs.where((h) {
+        final modeOk = switch (_filter) {
+          _Filter.all => true,
+          _Filter.online => h.online,
+          _Filter.outdoors => !h.online,
+        };
+        return modeOk && _matches(h);
+      }).toList();
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +71,45 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  TextField(
+                    controller: _search,
+                    onChanged: (v) => setState(() => _query = v.trim()),
+                    textInputAction: TextInputAction.search,
+                    style: AppText.body,
+                    decoration: InputDecoration(
+                      hintText: 'Search hubs or activities',
+                      hintStyle:
+                          AppText.body.copyWith(color: AppColors.textSubtle),
+                      prefixIcon: const Icon(Icons.search_rounded,
+                          color: AppColors.textSubtle),
+                      suffixIcon: _query.isEmpty
+                          ? null
+                          : IconButton(
+                              tooltip: 'Clear search',
+                              icon: const Icon(Icons.close_rounded,
+                                  color: AppColors.textSubtle),
+                              onPressed: () {
+                                _search.clear();
+                                setState(() => _query = '');
+                              },
+                            ),
+                      filled: true,
+                      fillColor: AppColors.surface,
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 14),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: const BorderSide(
+                            color: AppColors.border, width: 1.5),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: const BorderSide(
+                            color: AppColors.primary, width: 1.5),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
                   Wrap(
                     spacing: 8,
                     children: [
@@ -129,10 +188,17 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                       }
                       final hubs = _apply(snap.data!);
                       if (hubs.isEmpty) {
-                        return const EmptyState(
-                          icon: Icons.groups_outlined,
-                          title: 'No hubs here yet',
-                          message: 'Try another filter.',
+                        return EmptyState(
+                          icon: _query.isEmpty
+                              ? Icons.groups_outlined
+                              : Icons.search_off_rounded,
+                          title: _query.isEmpty
+                              ? 'No hubs here yet'
+                              : 'No hubs match “$_query”',
+                          message: _query.isEmpty
+                              ? 'Try another filter.'
+                              : 'Try another word, or suggest this hub '
+                                  'using the card above.',
                         );
                       }
                       return Column(
