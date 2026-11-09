@@ -5,6 +5,9 @@ import '../theme/app_colors.dart';
 /// Like an IndexedStack (every tab keeps its scroll position and state),
 /// but switching tabs plays a short slide: the new page fades in over the
 /// old one, sliding in from the side you're moving towards.
+///
+/// Uses FadeTransition/SlideTransition so the pages themselves are never
+/// rebuilt during the animation (only repainted), which keeps it smooth.
 class TabSwitcher extends StatefulWidget {
   const TabSwitcher({super.key, required this.index, required this.children});
 
@@ -19,8 +22,14 @@ class _TabSwitcherState extends State<TabSwitcher>
     with SingleTickerProviderStateMixin {
   late final _c = AnimationController(
       vsync: this, duration: const Duration(milliseconds: 260))
-    ..value = 1;
+    ..value = 1
+    ..addStatusListener((s) {
+      // Once finished, hide the old page again.
+      if (s == AnimationStatus.completed && mounted) setState(() {});
+    });
+  late final _curve = CurvedAnimation(parent: _c, curve: Curves.easeOutCubic);
   late int _from = widget.index;
+  late Animation<Offset> _slideIn = const AlwaysStoppedAnimation(Offset.zero);
 
   @override
   void didUpdateWidget(TabSwitcher old) {
@@ -29,9 +38,12 @@ class _TabSwitcherState extends State<TabSwitcher>
     _from = old.index;
     if (MediaQuery.of(context).disableAnimations) {
       _c.value = 1;
-    } else {
-      _c.forward(from: 0);
+      return;
     }
+    final dir = widget.index > _from ? 1.0 : -1.0;
+    _slideIn = Tween(begin: Offset(dir * 0.08, 0), end: Offset.zero)
+        .animate(_curve);
+    _c.forward(from: 0);
   }
 
   @override
@@ -43,58 +55,42 @@ class _TabSwitcherState extends State<TabSwitcher>
   @override
   Widget build(BuildContext context) {
     final to = widget.index;
-    final dir = to > _from ? 1.0 : -1.0;
-    // The new page fades in ON TOP of the old one (which stays solid
-    // underneath), so the green headers never turn pale mid-switch.
-    final inCurve = CurvedAnimation(parent: _c, curve: Curves.easeOutCubic);
+    final animating = _c.isAnimating && _from != to;
+    const still = AlwaysStoppedAnimation(1.0);
 
-    return AnimatedBuilder(
-      animation: _c,
-      builder: (context, _) {
-        final animating = _c.isAnimating && _from != to;
-        final slots = [
-          for (var i = 0; i < widget.children.length; i++)
-            _slot(
-              i,
-              visible: i == to || (animating && i == _from),
-              opacity: animating && i == to ? inCurve.value : 1,
-              dx: animating && i == to ? dir * 0.08 * (1 - inCurve.value) : 0,
-            ),
-        ];
-        // Draw the incoming page last so it sits on top.
-        final top = slots.removeAt(to);
-        return ClipRect(
-          child: Stack(fit: StackFit.expand, children: [...slots, top]),
-        );
-      },
-    );
-  }
-
-  Widget _slot(int i,
-      {required bool visible, required double opacity, required double dx}) {
-    return KeyedSubtree(
-      key: ValueKey(i), // keeps each tab's state when the order changes
-      child: Offstage(
-      offstage: !visible,
-      child: TickerMode(
-        enabled: visible,
-        child: IgnorePointer(
-          ignoring: i != widget.index,
-          child: FractionalTranslation(
-            translation: Offset(dx, 0),
-            child: Opacity(
-              opacity: opacity.clamp(0.0, 1.0),
-              // Each page gets its own background so pages never show
-              // through each other.
-              child: ColoredBox(
-                color: AppColors.bg,
-                child: widget.children[i],
+    final slots = [
+      for (var i = 0; i < widget.children.length; i++)
+        KeyedSubtree(
+          key: ValueKey(i), // keeps each tab's state when the order changes
+          child: Offstage(
+            offstage: !(i == to || (animating && i == _from)),
+            child: TickerMode(
+              enabled: i == to || (animating && i == _from),
+              child: IgnorePointer(
+                ignoring: i != to,
+                child: SlideTransition(
+                  position: i == to
+                      ? _slideIn
+                      : const AlwaysStoppedAnimation(Offset.zero),
+                  child: FadeTransition(
+                    opacity: i == to ? _curve : still,
+                    child: RepaintBoundary(
+                      child: ColoredBox(
+                        color: AppColors.bg,
+                        child: widget.children[i],
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
         ),
-      ),
-      ),
+    ];
+    // Draw the incoming page last so it sits on top of the old one.
+    final top = slots.removeAt(to);
+    return ClipRect(
+      child: Stack(fit: StackFit.expand, children: [...slots, top]),
     );
   }
 }
