@@ -7,6 +7,8 @@ import '../../widgets/app_button.dart';
 import '../../widgets/app_text_field.dart';
 import '../../widgets/auth_hero.dart';
 import '../../widgets/or_divider.dart';
+import '../../models/blocked_domains.dart';
+import '../info/guidelines_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -21,6 +23,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   bool _loading = false;
+  bool _agreed = false;
   bool _guestLoading = false;
 
   @override
@@ -125,9 +128,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       controller: _email,
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
-                      validator: (v) => (v == null || !v.contains('@'))
-                          ? 'Enter a valid email'
-                          : null,
+                      validator: (v) {
+                        if (v == null || !v.contains('@')) {
+                          return 'Enter a valid email';
+                        }
+                        if (isBlockedEmail(v)) {
+                          return 'Please use your personal email. Temporary '
+                              'inboxes aren’t allowed.';
+                        }
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 16),
                     AppTextField(
@@ -141,10 +151,43 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ? 'At least 8 characters'
                           : null,
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Checkbox(
+                          value: _agreed,
+                          activeColor: AppColors.primary,
+                          onChanged: (v) =>
+                              setState(() => _agreed = v ?? false),
+                        ),
+                        Expanded(
+                          child: Wrap(
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              Text('I agree to the ',
+                                  style: AppText.caption),
+                              GestureDetector(
+                                onTap: () => openGuidelines(context),
+                                child: Text(
+                                  'Community Guidelines',
+                                  style: AppText.caption.copyWith(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.w700,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ),
+                              Text(' and privacy summary.',
+                                  style: AppText.caption),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
                     AppButton(
                       label: 'Create account',
-                      onPressed: _createAccount,
+                      onPressed: _agreed ? _createAccount : null,
                       loading: _loading,
                     ),
                     const SizedBox(height: 8),

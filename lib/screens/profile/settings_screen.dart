@@ -9,6 +9,8 @@ import '../../widgets/screen_header.dart';
 import '../../widgets/sheets.dart';
 import '../auth/sign_up_screen.dart';
 import '../hubs/my_requests_screen.dart';
+import '../info/guidelines_screen.dart';
+import 'delete_account_screen.dart';
 
 void openSettings(BuildContext context, User user) {
   Navigator.of(context).push(MaterialPageRoute(
@@ -103,6 +105,12 @@ class SettingsScreen extends StatelessWidget {
                   const SizedBox(height: 20),
                   const _Label('About'),
                   _Group(children: [
+                    _Row(
+                      icon: Icons.menu_book_outlined,
+                      title: 'Guidelines & privacy',
+                      subtitle: 'How we keep reHUB safe, and what we store',
+                      onTap: () => openGuidelines(context),
+                    ),
                     const _Row(
                       icon: Icons.info_outline_rounded,
                       title: 'reHUB',
@@ -118,6 +126,13 @@ class SettingsScreen extends StatelessWidget {
                       danger: true,
                       onTap: () => _signOut(context),
                     ),
+                    if (!guest)
+                      _Row(
+                        icon: Icons.delete_forever_outlined,
+                        title: 'Delete account',
+                        danger: true,
+                        onTap: () => openDeleteAccount(context),
+                      ),
                   ]),
                 ],
               ),

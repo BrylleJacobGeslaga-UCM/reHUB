@@ -65,6 +65,7 @@ class AuthService {
       'name': name.trim(),
       'email': email.trim(),
       'onboarded': false,
+      'agreedToGuidelinesAt': FieldValue.serverTimestamp(),
       'createdAt': FieldValue.serverTimestamp(),
     });
     await user.sendEmailVerification();
