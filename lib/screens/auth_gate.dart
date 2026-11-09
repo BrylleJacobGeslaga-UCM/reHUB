@@ -8,6 +8,7 @@ import '../services/user_service.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
 import 'auth/sign_in_screen.dart';
+import 'auth/verify_email_screen.dart';
 import 'shell/app_shell.dart';
 import 'onboarding/onboarding_flow.dart';
 
@@ -31,6 +32,11 @@ class AuthGate extends StatelessWidget {
         // Guests are browse-only: no onboarding, nothing saved.
         if (user.isAnonymous) {
           return _ready(AppShell(user: user, profile: const {}));
+        }
+
+        // Real accounts must confirm their email before using the app.
+        if (!user.emailVerified) {
+          return _ready(VerifyEmailScreen(user: user));
         }
 
         return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(

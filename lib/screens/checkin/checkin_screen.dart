@@ -10,6 +10,7 @@ import '../../widgets/app_card.dart';
 import '../../widgets/bottom_action.dart';
 import '../../widgets/screen_header.dart';
 import '../../widgets/sheets.dart';
+import '../goals/plan_screen.dart';
 
 void openCheckIn(BuildContext context, User user, {CheckIn? existing}) {
   Navigator.of(context).push(MaterialPageRoute(
@@ -104,7 +105,38 @@ class _CheckInScreenState extends State<CheckInScreen> {
                 child: _mood == Mood.struggling
                     ? Padding(
                         padding: const EdgeInsets.only(top: 16),
-                        child: AppCard(
+                        child: Column(
+                          children: [
+                            AppCard(
+                              onTap: () => openPlan(context, widget.user),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.shield_outlined,
+                                      color: AppColors.primary),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text('Open my plan',
+                                            style: AppText.bodyStrong),
+                                        Text(
+                                          'Your reasons, and what helps you '
+                                          'get through moments like this.',
+                                          style: AppText.caption.copyWith(
+                                              color: AppColors.textMuted),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const Icon(Icons.chevron_right_rounded,
+                                      color: AppColors.textMuted),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            AppCard(
                           color: AppColors.accentTint,
                           bordered: false,
                           onTap: () => showHelpSheet(context),
@@ -132,6 +164,8 @@ class _CheckInScreenState extends State<CheckInScreen> {
                                   color: AppColors.textMuted),
                             ],
                           ),
+                        ),
+                          ],
                         ),
                       )
                     : const SizedBox(width: double.infinity),

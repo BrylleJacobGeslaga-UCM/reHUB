@@ -7,10 +7,12 @@ service cloud.firestore {
     function signedIn() {
       return request.auth != null;
     }
-    // Signed in with a real account (not "Continue as guest").
+    // Signed in with a real, verified account (not "Continue as guest",
+    // and the email link has been clicked).
     function isRealUser() {
       return signedIn()
-        && request.auth.token.firebase.sign_in_provider != 'anonymous';
+        && request.auth.token.firebase.sign_in_provider != 'anonymous'
+        && request.auth.token.email_verified == true;
     }
     function isMe(uid) {
       return signedIn() && request.auth.uid == uid;
@@ -119,6 +121,14 @@ service cloud.firestore {
       }
       // Private list of comments you wrote.
       match /comments/{commentId} {
+        allow read, write: if isMe(uid) && isRealUser();
+      }
+      // Your RSVPs (private copy, used for goal milestones).
+      match /rsvps/{eventId} {
+        allow read, write: if isMe(uid) && isRealUser();
+      }
+      // Private notes like your recovery plan. Only you, ever.
+      match /private/{docId} {
         allow read, write: if isMe(uid) && isRealUser();
       }
       // When you last opened each hub chat (for unread dots).

@@ -20,6 +20,8 @@ import '../../widgets/request_status.dart';
 import '../../models/report.dart';
 import '../../services/report_service.dart';
 import '../admin/review_reports_screen.dart';
+import '../goals/goals_screen.dart';
+import '../goals/plan_screen.dart';
 import '../admin/review_requests_screen.dart';
 import '../hubs/hub_detail_screen.dart';
 
@@ -145,20 +147,20 @@ class ProfileScreen extends StatelessWidget {
                   const SizedBox(height: 24),
                   _SectionTitle(icon: Icons.flag_outlined, title: 'Your goals'),
                   const SizedBox(height: 10),
-                  AppCard(
-                    padding: const EdgeInsets.symmetric(vertical: 6),
-                    child: Column(
-                      children: [
-                        for (final id in goals)
-                          ListTile(
-                            dense: true,
-                            leading: const Icon(Icons.check_circle_rounded,
-                                color: AppColors.primary, size: 22),
-                            title: Text(labelFor(goalOptions, id),
-                                style: AppText.bodyStrong),
-                          ),
-                      ],
-                    ),
+                  _LinkCard(
+                    icon: Icons.emoji_events_outlined,
+                    title: goals.isEmpty
+                        ? 'Set a goal'
+                        : goals.map((id) => labelFor(goalOptions, id)).join(' · '),
+                    subtitle: 'Milestones, progress and next steps',
+                    onTap: () => openGoals(context, user),
+                  ),
+                  const SizedBox(height: 10),
+                  _LinkCard(
+                    icon: Icons.shield_outlined,
+                    title: 'My plan',
+                    subtitle: 'Your private plan for hard moments',
+                    onTap: () => openPlan(context, user),
                   ),
                   const SizedBox(height: 24),
                   _SectionTitle(icon: Icons.groups_outlined, title: 'Joined hubs'),
@@ -456,6 +458,44 @@ class _AdminCard extends StatelessWidget {
             const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _LinkCard extends StatelessWidget {
+  const _LinkCard({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      onTap: onTap,
+      child: Row(
+        children: [
+          IconTile(icon: icon, size: 44),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: AppText.bodyStrong),
+                Text(subtitle,
+                    style: AppText.caption.copyWith(color: AppColors.textMuted)),
+              ],
+            ),
+          ),
+          const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
+        ],
       ),
     );
   }

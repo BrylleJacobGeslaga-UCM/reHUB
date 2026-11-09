@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../services/hub_service.dart';
 import '../../widgets/bottom_nav.dart';
+import '../../widgets/milestone_watcher.dart';
 import '../chat/chat_screen.dart';
 import '../feed/feed_screen.dart';
 import '../home/home_screen.dart';
@@ -48,9 +49,13 @@ class _AppShellState extends State<AppShell> {
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) _goTo(0);
       },
-      child: Scaffold(
-        body: IndexedStack(index: _index, children: pages),
-        bottomNavigationBar: BottomNav(index: _index, onTap: _goTo),
+      child: MilestoneWatcher(
+        user: widget.user,
+        profile: widget.profile,
+        child: Scaffold(
+          body: IndexedStack(index: _index, children: pages),
+          bottomNavigationBar: BottomNav(index: _index, onTap: _goTo),
+        ),
       ),
     );
   }

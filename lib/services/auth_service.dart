@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -9,8 +11,32 @@ class AuthService {
   final _auth = FirebaseAuth.instance;
   final _db = FirebaseFirestore.instance;
 
-  /// Emits whenever the user signs in/out or their profile (name) changes.
-  Stream<User?> get userChanges => _auth.userChanges();
+  /// Lets us push an update after checking email verification
+  /// (Firebase doesn't announce that change by itself).
+  final _manual = StreamController<User?>.broadcast();
+
+  /// Emits whenever the user signs in/out, their profile changes, or their
+  /// email gets verified.
+  late final Stream<User?> userChanges = _merged();
+
+  Stream<User?> _merged() {
+    StreamSubscription<User?>? a;
+    StreamSubscription<User?>? b;
+    late final StreamController<User?> controller;
+    controller = StreamController<User?>.broadcast(
+      onListen: () {
+        a = _auth.userChanges().listen(controller.add,
+            onError: controller.addError);
+        b = _manual.stream.listen(controller.add);
+      },
+      onCancel: () async {
+        await a?.cancel();
+        await b?.cancel();
+      },
+    );
+    return controller.stream;
+  }
+
   User? get currentUser => _auth.currentUser;
 
   Future<void> signIn(String email, String password) =>
@@ -41,6 +67,39 @@ class AuthService {
       'onboarded': false,
       'createdAt': FieldValue.serverTimestamp(),
     });
+    await user.sendEmailVerification();
+  }
+
+  /// Re-checks whether the email link was clicked. Returns true if verified.
+  Future<bool> refreshVerification() async {
+    final user = _auth.currentUser;
+    if (user == null) return false;
+    await user.reload();
+    final fresh = _auth.currentUser;
+    final verified = fresh?.emailVerified ?? false;
+    if (verified) {
+      // Get a new sign-in token so the database rules see "verified".
+      await fresh!.getIdToken(true);
+      _manual.add(fresh);
+    }
+    return verified;
+  }
+
+  Future<void> resendVerification() async =>
+      _auth.currentUser?.sendEmailVerification();
+
+  /// Deletes an account that was never verified (e.g. a typo in the email),
+  /// so the person can sign up again with the right address.
+  Future<void> deleteUnverifiedAccount() async {
+    final user = _auth.currentUser;
+    if (user == null || user.emailVerified) return;
+    try {
+      await _db.collection('users').doc(user.uid).delete();
+      await user.delete();
+    } catch (_) {
+      // e.g. "requires recent login": just sign out instead.
+      await _auth.signOut();
+    }
   }
 
   Future<void> continueAsGuest() => _auth.signInAnonymously();

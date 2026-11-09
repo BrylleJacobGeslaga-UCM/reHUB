@@ -66,13 +66,18 @@ class EventService {
   }) {
     final eventRef = _events(hubId).doc(eventId);
     final goingRef = eventRef.collection('going').doc(uid);
+    // Private copy under the user, used for goal milestones.
+    final myRef =
+        _db.collection('users').doc(uid).collection('rsvps').doc(eventId);
     return _db.runTransaction((tx) async {
       final going = await tx.get(goingRef);
       if (going.exists) {
         tx.delete(goingRef);
+        tx.delete(myRef);
         tx.update(eventRef, {'goingCount': FieldValue.increment(-1)});
       } else {
         tx.set(goingRef, {'name': name, 'at': FieldValue.serverTimestamp()});
+        tx.set(myRef, {'hubId': hubId, 'at': FieldValue.serverTimestamp()});
         tx.update(eventRef, {'goingCount': FieldValue.increment(1)});
       }
     });
