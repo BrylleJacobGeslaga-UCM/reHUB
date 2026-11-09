@@ -14,6 +14,7 @@ import '../../widgets/screen_header.dart';
 import '../../widgets/sheets.dart';
 import '../chat/chat_room_screen.dart';
 import 'events_section.dart';
+import 'hub_posts_section.dart';
 import 'delete_hub_button.dart';
 import 'leader_card.dart';
 
@@ -107,30 +108,6 @@ class HubDetailScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 14),
                       LeaderCard(user: user, hub: hub),
-                      const SizedBox(height: 14),
-                      AppCard(
-                        padding: const EdgeInsets.all(18),
-                        child: Row(
-                          children: [
-                            const IconTile(
-                                icon: Icons.people_outline_rounded, size: 40),
-                            const SizedBox(width: 14),
-                            Expanded(
-                              child: Text(
-                                joined && hub.memberCount <= 1
-                                    ? 'You’re the first member'
-                                    : joined
-                                    ? 'You and ${hub.memberCount - 1} '
-                                        '${hub.memberCount - 1 == 1 ? 'other' : 'others'}'
-                                    : hub.memberCount == 0
-                                        ? 'Be the first to join'
-                                        : hub.membersLabel,
-                                style: AppText.bodyStrong,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                       if (joined) ...[
                         const SizedBox(height: 14),
                         AppCard(
@@ -166,6 +143,13 @@ class HubDetailScreen extends StatelessWidget {
                         hub: hub,
                         joined: joined,
                         myName: name,
+                      ),
+                      const SizedBox(height: 24),
+                      HubPostsSection(
+                        user: user,
+                        hub: hub,
+                        profile: profile,
+                        joined: joined,
                       ),
                       DeleteHubButton(user: user, hub: hub),
                     ],

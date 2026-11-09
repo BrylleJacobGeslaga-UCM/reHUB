@@ -12,7 +12,15 @@ import '../../widgets/bottom_action.dart';
 import '../../widgets/screen_header.dart';
 
 class ComposeScreen extends StatefulWidget {
-  const ComposeScreen({super.key, required this.user, required this.profile});
+  const ComposeScreen({
+    super.key,
+    required this.user,
+    required this.profile,
+    this.initialHubId,
+  });
+
+  /// Pre-selects a hub (when opened from a hub page).
+  final String? initialHubId;
 
   final User user;
   final Map<String, dynamic> profile;
@@ -23,7 +31,7 @@ class ComposeScreen extends StatefulWidget {
 
 class _ComposeScreenState extends State<ComposeScreen> {
   final _body = TextEditingController();
-  String? _hubId;
+  late String? _hubId = widget.initialHubId;
   bool _anonymous = false;
   bool _posting = false;
 

@@ -75,6 +75,14 @@ class PostService {
     return controller.stream;
   }
 
+  /// Newest posts in one hub (members only, per the rules).
+  Stream<List<Post>> hubPosts(String hubId, {int limit = 5}) => _posts
+      .where('hubId', isEqualTo: hubId)
+      .orderBy('createdAt', descending: true)
+      .limit(limit)
+      .snapshots()
+      .map((s) => s.docs.map(Post.fromDoc).toList());
+
   Stream<Post?> post(String postId) => _posts
       .doc(postId)
       .snapshots()
