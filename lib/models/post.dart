@@ -58,6 +58,7 @@ class Post {
     required this.createdAt,
     required this.counts,
     required this.commentCount,
+    this.authorId,
   });
 
   final String id;
@@ -69,6 +70,9 @@ class Post {
   final DateTime createdAt;
   final Map<Reaction, int> counts;
   final int commentCount;
+
+  /// Only set on named (non-anonymous) posts, so members can block authors.
+  final String? authorId;
 
   String get displayName =>
       anonymous ? 'Anonymous member' : (authorName ?? 'Member');
@@ -88,12 +92,13 @@ class Post {
       createdAt: (d['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       counts: {for (final r in Reaction.values) r: _count(raw[r.name])},
       commentCount: _count(d['commentCount']),
+      authorId: d['authorId'] as String?,
     );
   }
 }
 
 /// A reply on a post, stored at posts/{postId}/comments/{id}.
-/// Like posts, no author id is stored (users/{uid}/comments/{id} instead).
+/// Like posts, anonymous comments store no author id.
 class Comment {
   const Comment({
     required this.id,
@@ -101,9 +106,13 @@ class Comment {
     required this.anonymous,
     required this.body,
     required this.createdAt,
+    this.authorId,
   });
 
   final String id;
+
+  /// Only set on named (non-anonymous) comments.
+  final String? authorId;
   final String? authorName;
   final bool anonymous;
   final String body;
@@ -121,6 +130,7 @@ class Comment {
       anonymous: d['anonymous'] as bool? ?? false,
       body: d['body'] as String? ?? '',
       createdAt: (d['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      authorId: d['authorId'] as String?,
     );
   }
 }

@@ -16,6 +16,7 @@ class PostCard extends StatelessWidget {
     this.isMine = false,
     this.onDelete,
     this.onReport,
+    this.onBlock,
   });
 
   final Post post;
@@ -25,6 +26,9 @@ class PostCard extends StatelessWidget {
   final VoidCallback onComment;
   final VoidCallback? onDelete;
   final VoidCallback? onReport;
+
+  /// Only offered on named posts by someone else.
+  final VoidCallback? onBlock;
 
   @override
   Widget build(BuildContext context) {
@@ -81,14 +85,23 @@ class PostCard extends StatelessWidget {
                   tooltip: 'Post options',
                   icon: const Icon(Icons.more_vert_rounded,
                       color: AppColors.textSubtle),
-                  onSelected: (v) => v == 'delete' ? onDelete!() : onReport!(),
+                  onSelected: (v) => switch (v) {
+                    'delete' => onDelete!(),
+                    'block' => onBlock!(),
+                    _ => onReport!(),
+                  },
                   itemBuilder: (_) => [
                     if (isMine)
                       const PopupMenuItem(
                           value: 'delete', child: Text('Delete post'))
-                    else
+                    else ...[
                       const PopupMenuItem(
                           value: 'report', child: Text('Report post')),
+                      if (onBlock != null && post.authorId != null)
+                        PopupMenuItem(
+                            value: 'block',
+                            child: Text('Block ${post.displayName}')),
+                    ],
                   ],
                 ),
             ],

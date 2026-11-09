@@ -10,6 +10,7 @@ import '../../widgets/sheets.dart';
 import '../auth/sign_up_screen.dart';
 import '../hubs/my_requests_screen.dart';
 import '../info/guidelines_screen.dart';
+import 'blocked_screen.dart';
 import 'delete_account_screen.dart';
 
 void openSettings(BuildContext context, User user) {
@@ -90,6 +91,12 @@ class SettingsScreen extends StatelessWidget {
                         icon: Icons.outbox_outlined,
                         title: 'Your hub suggestions',
                         onTap: () => openMyRequests(context, user),
+                      ),
+                    if (!guest)
+                      _Row(
+                        icon: Icons.block_outlined,
+                        title: 'Blocked members',
+                        onTap: () => openBlocked(context, user),
                       ),
                   ]),
                   const SizedBox(height: 20),

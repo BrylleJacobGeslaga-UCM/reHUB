@@ -98,6 +98,8 @@ class PostService {
       'hubId': hub.id,
       'hubName': hub.name,
       'authorName': anonymous ? null : authorName,
+      // Named posts record the author (for blocking); anonymous ones never do.
+      if (!anonymous) 'authorId': uid,
       'anonymous': anonymous,
       'body': body.trim(),
       'createdAt': FieldValue.serverTimestamp(),
@@ -191,6 +193,7 @@ class PostService {
     final batch = _db.batch();
     batch.set(commentRef, {
       'authorName': anonymous ? null : authorName,
+      if (!anonymous) 'authorId': uid,
       'anonymous': anonymous,
       'body': body.trim(),
       'createdAt': FieldValue.serverTimestamp(),

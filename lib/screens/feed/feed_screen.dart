@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/post.dart';
+import '../../services/block_service.dart';
 import '../../services/post_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text.dart';
@@ -31,6 +34,25 @@ class FeedScreen extends StatefulWidget {
 }
 
 class _FeedScreenState extends State<FeedScreen> {
+  Map<String, String> _blocked = const {};
+  StreamSubscription<Map<String, String>>? _blockSub;
+
+  @override
+  void initState() {
+    super.initState();
+    if (!widget.user.isAnonymous) {
+      _blockSub = BlockService.instance.blocked(widget.user.uid).listen((b) {
+        if (mounted) setState(() => _blocked = b);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _blockSub?.cancel();
+    super.dispose();
+  }
+
   Stream<List<Post>>? _feed;
   List<String> _feedFor = const [];
 
@@ -174,7 +196,9 @@ class _FeedScreenState extends State<FeedScreen> {
             ),
           );
         }
-        final posts = postsSnap.data!;
+        final posts = postsSnap.data!
+            .where((p) => p.authorId == null || !_blocked.containsKey(p.authorId))
+            .toList();
         if (posts.isEmpty) {
           return EmptyState(
             icon: Icons.article_outlined,
@@ -205,6 +229,13 @@ class _FeedScreenState extends State<FeedScreen> {
                           onComment: () => _comments(p),
                           onDelete: () => _delete(p),
                           onReport: () => _report(p),
+                          onBlock: p.authorId == null ||
+                                  p.authorId == widget.user.uid
+                              ? null
+                              : () => confirmBlock(context,
+                                  uid: widget.user.uid,
+                                  targetId: p.authorId!,
+                                  name: p.displayName),
                         ),
                       ),
                   ],

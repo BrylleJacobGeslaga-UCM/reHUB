@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/post.dart';
+import '../../services/block_service.dart';
 import '../../services/post_service.dart';
 import '../../services/user_service.dart';
 import '../../theme/app_colors.dart';
@@ -259,10 +260,19 @@ class _Thread extends StatelessWidget {
                   onComment: () {},
                 ),
                 const SizedBox(height: 20),
-                StreamBuilder<List<Comment>>(
+                StreamBuilder<Map<String, String>>(
+                  stream: guest
+                      ? Stream.value(const <String, String>{})
+                      : BlockService.instance.blocked(user.uid),
+                  builder: (context, blockSnap) {
+                    final blocked = blockSnap.data ?? const <String, String>{};
+                    return StreamBuilder<List<Comment>>(
                   stream: PostService.instance.comments(post.id),
                   builder: (context, snap) {
-                    final comments = snap.data ?? const <Comment>[];
+                    final comments = (snap.data ?? const <Comment>[])
+                        .where((c) =>
+                            c.authorId == null || !blocked.containsKey(c.authorId))
+                        .toList();
                     if (snap.hasData && comments.isEmpty) {
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 24),
@@ -292,10 +302,20 @@ class _Thread extends StatelessWidget {
                                 preview: c.body,
                                 authorName: c.displayName,
                               )),
+                              onBlock: c.authorId == null ||
+                                      c.authorId == user.uid ||
+                                      guest
+                                  ? null
+                                  : () => confirmBlock(context,
+                                      uid: user.uid,
+                                      targetId: c.authorId!,
+                                      name: c.displayName),
                             ),
                           ),
                       ],
                     );
+                  },
+                );
                   },
                 ),
               ],
@@ -313,12 +333,14 @@ class _CommentTile extends StatelessWidget {
     required this.isMine,
     required this.onDelete,
     required this.onReport,
+    this.onBlock,
   });
 
   final Comment comment;
   final bool isMine;
   final VoidCallback onDelete;
   final VoidCallback onReport;
+  final VoidCallback? onBlock;
 
   @override
   Widget build(BuildContext context) {
@@ -368,11 +390,19 @@ class _CommentTile extends StatelessWidget {
                   size: 20, color: AppColors.textSubtle),
             )
           else
-            IconButton(
-              tooltip: 'Report comment',
-              onPressed: onReport,
-              icon: const Icon(Icons.outlined_flag_rounded,
+            PopupMenuButton<String>(
+              tooltip: 'Comment options',
+              icon: const Icon(Icons.more_vert_rounded,
                   size: 20, color: AppColors.textSubtle),
+              onSelected: (v) => v == 'block' ? onBlock!() : onReport(),
+              itemBuilder: (_) => [
+                const PopupMenuItem(
+                    value: 'report', child: Text('Report comment')),
+                if (onBlock != null)
+                  PopupMenuItem(
+                      value: 'block',
+                      child: Text('Block ${comment.displayName}')),
+              ],
             ),
         ],
       ),

@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/hub.dart';
 import '../../models/message.dart';
+import '../../services/block_service.dart';
 import '../../services/chat_service.dart';
 import '../../services/user_service.dart';
 import '../../theme/app_colors.dart';
@@ -35,9 +38,15 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
   String _myName = 'Member';
   DateTime? _markedUpTo;
 
+  Map<String, String> _blocked = const {};
+  StreamSubscription<Map<String, String>>? _blockSub;
+
   @override
   void initState() {
     super.initState();
+    _blockSub = BlockService.instance.blocked(widget.user.uid).listen((b) {
+      if (mounted) setState(() => _blocked = b);
+    });
     _input.addListener(() => setState(() {}));
     _myName = widget.user.displayName ?? 'Member';
     _loadName();
@@ -54,6 +63,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
 
   @override
   void dispose() {
+    _blockSub?.cancel();
     _input.dispose();
     super.dispose();
   }
@@ -118,6 +128,60 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     }
   }
 
+  /// Long-press on someone else's message: report or block.
+  void _otherOptions(Message m) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.bg,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.outlined_flag_rounded,
+                    color: AppColors.primary),
+                title: const Text('Report message'),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  showReportSheet(
+                    context,
+                    user: widget.user,
+                    target: ReportTarget(
+                      type: ReportType.message,
+                      path: 'hubs/${widget.hub.id}/messages/${m.id}',
+                      hubId: widget.hub.id,
+                      hubName: widget.hub.name,
+                      preview: m.body,
+                      authorName: m.senderName,
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.block_rounded,
+                    color: AppColors.danger),
+                title: Text('Block ${m.senderName}',
+                    style: const TextStyle(color: AppColors.danger)),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  confirmBlock(context,
+                      uid: widget.user.uid,
+                      targetId: m.senderId,
+                      name: m.senderName);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -141,8 +205,10 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                         CircularProgressIndicator(color: AppColors.primary),
                   );
                 }
-                final messages = snap.data!;
-                _markRead(messages);
+                _markRead(snap.data!);
+                final messages = snap.data!
+                    .where((m) => !_blocked.containsKey(m.senderId))
+                    .toList();
 
                 return ListView.builder(
                   reverse: true,
@@ -175,18 +241,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                           showName: showName,
                           onLongPress: mine
                               ? () => _delete(m)
-                              : () => showReportSheet(
-                                    context,
-                                    user: widget.user,
-                                    target: ReportTarget(
-                                      type: ReportType.message,
-                                      path: 'hubs/${widget.hub.id}/messages/${m.id}',
-                                      hubId: widget.hub.id,
-                                      hubName: widget.hub.name,
-                                      preview: m.body,
-                                      authorName: m.senderName,
-                                    ),
-                                  ),
+                              : () => _otherOptions(m),
                         ),
                       ],
                     );

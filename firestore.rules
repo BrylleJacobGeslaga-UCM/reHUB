@@ -151,6 +151,10 @@ service cloud.firestore {
       match /chatReads/{hubId} {
         allow read, write: if isMe(uid) && isRealUser();
       }
+      // Members you've blocked. Only you can see this list.
+      match /blocked/{targetId} {
+        allow read, write: if isMe(uid) && isRealUser();
+      }
       // Private list of your reactions.
       match /reactions/{postId} {
         allow read, write: if isMe(uid) && isRealUser();
@@ -307,8 +311,8 @@ service cloud.firestore {
         && existsAfter(myMarker())
         && exists(/databases/$(database)/documents/hubs/$(request.resource.data.hubId)/members/$(request.auth.uid))
         && request.resource.data.keys().hasOnly(
-             ['hubId', 'hubName', 'authorName', 'anonymous', 'body', 'createdAt',
-              'reactions', 'commentCount'])
+             ['hubId', 'hubName', 'authorName', 'authorId', 'anonymous', 'body',
+              'createdAt', 'reactions', 'commentCount'])
         && request.resource.data.body is string
         && request.resource.data.body.size() > 0
         && request.resource.data.body.size() <= 1000
@@ -316,11 +320,15 @@ service cloud.firestore {
         && request.resource.data.reactions == {'support': 0, 'proud': 0, 'relate': 0}
         && request.resource.data.commentCount == 0
         && (
+          // Anonymous: no name and no author id, ever.
           (request.resource.data.anonymous == true
-            && request.resource.data.authorName == null)
+            && request.resource.data.authorName == null
+            && !('authorId' in request.resource.data))
           ||
+          // Named: your name, and your own id (so others can block you).
           (request.resource.data.anonymous == false
-            && request.resource.data.authorName is string)
+            && request.resource.data.authorName is string
+            && request.resource.data.get('authorId', request.auth.uid) == request.auth.uid)
         );
 
       // Reactions or comment count: may only move by one at a time.
@@ -357,17 +365,19 @@ service cloud.firestore {
           && existsAfter(myCommentMarker())
           && exists(/databases/$(database)/documents/hubs/$(postHub())/members/$(request.auth.uid))
           && request.resource.data.keys().hasOnly(
-               ['authorName', 'anonymous', 'body', 'createdAt'])
+               ['authorName', 'authorId', 'anonymous', 'body', 'createdAt'])
           && request.resource.data.body is string
           && request.resource.data.body.size() > 0
           && request.resource.data.body.size() <= 500
           && request.resource.data.createdAt == request.time
           && (
             (request.resource.data.anonymous == true
-              && request.resource.data.authorName == null)
+              && request.resource.data.authorName == null
+              && !('authorId' in request.resource.data))
             ||
             (request.resource.data.anonymous == false
-              && request.resource.data.authorName is string)
+              && request.resource.data.authorName is string
+              && request.resource.data.get('authorId', request.auth.uid) == request.auth.uid)
           );
 
         allow delete: if isAdmin()
