@@ -7,10 +7,18 @@ import '../theme/app_text.dart';
 /// Green header used on Sign In / Sign Up: logo, title, subtitle,
 /// rounded bottom corners and two soft decorative circles.
 class AuthHero extends StatelessWidget {
-  const AuthHero({super.key, required this.title, required this.subtitle});
+  const AuthHero({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    this.logoKey,
+  });
 
   final String title;
   final String subtitle;
+
+  /// Lets the splash intro find where the logo sits.
+  final Key? logoKey;
 
   Widget _circle(double size) => Container(
         width: size,
@@ -42,7 +50,7 @@ class AuthHero extends StatelessWidget {
                   child: Column(
                     children: [
                       SvgPicture.asset('assets/logo_white.svg',
-                          width: 72, height: 72),
+                          key: logoKey, width: 72, height: 72),
                       const SizedBox(height: 16),
                       Text(
                         title,

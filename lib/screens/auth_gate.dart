@@ -7,6 +7,7 @@ import '../services/auth_service.dart';
 import '../services/user_service.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
+import '../widgets/splash_intro.dart';
 import 'auth/sign_in_screen.dart';
 import 'auth/verify_email_screen.dart';
 import 'shell/app_shell.dart';
@@ -63,6 +64,8 @@ class AuthGate extends StatelessWidget {
 /// Hides the native splash screen the first time a real screen is ready.
 Widget _ready(Widget screen) {
   FlutterNativeSplash.remove();
+  // The splash intro only belongs to a launch that opens on Sign In.
+  if (screen is! SignInScreen) SplashIntro.skip();
   return screen;
 }
 

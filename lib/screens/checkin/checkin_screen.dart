@@ -10,6 +10,7 @@ import '../../theme/app_text.dart';
 import '../../widgets/app_button.dart';
 import '../../widgets/app_card.dart';
 import '../../widgets/bottom_action.dart';
+import '../../widgets/pop.dart';
 import '../../widgets/screen_header.dart';
 import '../../widgets/sheets.dart';
 import '../goals/plan_screen.dart';
@@ -269,9 +270,13 @@ class _MoodCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 16),
             child: Column(
               children: [
-                Icon(mood.icon,
-                    size: 36,
-                    color: selected ? AppColors.primary : AppColors.textMuted),
+                Pop(
+                  active: selected,
+                  child: Icon(mood.icon,
+                      size: 36,
+                      color:
+                          selected ? AppColors.primary : AppColors.textMuted),
+                ),
                 const SizedBox(height: 8),
                 Text(
                   mood.label,

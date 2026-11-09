@@ -4,6 +4,7 @@ import '../models/post.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
 import 'app_card.dart';
+import 'pop.dart';
 
 /// Matches the Figma "Post Card" component.
 class PostCard extends StatelessWidget {
@@ -219,7 +220,10 @@ class _ActionButton extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(icon, size: 17, color: color),
+                      Pop(
+                        active: selected,
+                        child: Icon(icon, size: 17, color: color),
+                      ),
                       const SizedBox(width: 5),
                       Text(
                         count > 0 ? '$label $count' : label,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
+import 'pop.dart';
 
 class _Tab {
   const _Tab(this.label, this.icon, this.activeIcon);
@@ -17,7 +18,11 @@ const _tabs = [
   _Tab('Profile', Icons.person_outline_rounded, Icons.person_rounded),
 ];
 
-/// Matches the Figma "Bottom Nav": active tab gets a mint pill.
+const _pillWidth = 64.0;
+const _pillHeight = 32.0;
+const _slide = Duration(milliseconds: 320);
+
+/// Bottom navigation. One mint pill slides over to the tab you tap.
 class BottomNav extends StatelessWidget {
   const BottomNav({super.key, required this.index, required this.onTap});
 
@@ -35,17 +40,41 @@ class BottomNav extends StatelessWidget {
         top: false,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(12, 8, 12, 10),
-          child: Row(
-            children: [
-              for (var i = 0; i < _tabs.length; i++)
-                Expanded(
-                  child: _NavItem(
-                    tab: _tabs[i],
-                    active: i == index,
-                    onTap: () => onTap(i),
+          child: LayoutBuilder(
+            builder: (context, box) {
+              final slot = box.maxWidth / _tabs.length;
+              return Stack(
+                children: [
+                  // The sliding pill, drawn behind the icons.
+                  AnimatedPositioned(
+                    duration: _slide,
+                    curve: Curves.easeOutBack,
+                    top: 4,
+                    left: slot * index + (slot - _pillWidth) / 2,
+                    width: _pillWidth,
+                    height: _pillHeight,
+                    child: const DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryTint,
+                        borderRadius: BorderRadius.all(Radius.circular(16)),
+                      ),
+                    ),
                   ),
-                ),
-            ],
+                  Row(
+                    children: [
+                      for (var i = 0; i < _tabs.length; i++)
+                        Expanded(
+                          child: _NavItem(
+                            tab: _tabs[i],
+                            active: i == index,
+                            onTap: () => onTap(i),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),
@@ -62,38 +91,46 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = active ? AppColors.primary : AppColors.textMuted;
-
     return Semantics(
       button: true,
       selected: active,
       label: tab.label,
-      child: InkWell(
+      excludeSemantics: true,
+      // No grey ripple: the sliding pill is the feedback.
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-                decoration: BoxDecoration(
-                  color: active ? AppColors.primaryTint : Colors.transparent,
-                  borderRadius: BorderRadius.circular(16),
+              SizedBox(
+                height: _pillHeight,
+                child: Center(
+                  child: Pop(
+                    active: active,
+                    child: TweenAnimationBuilder<Color?>(
+                      tween: ColorTween(
+                          end: active ? AppColors.primary : AppColors.textMuted),
+                      duration: _slide,
+                      builder: (context, color, _) => Icon(
+                        active ? tab.activeIcon : tab.icon,
+                        size: 24,
+                        color: color,
+                      ),
+                    ),
+                  ),
                 ),
-                child: Icon(active ? tab.activeIcon : tab.icon,
-                    size: 24, color: color),
               ),
               const SizedBox(height: 4),
-              Text(
-                tab.label,
+              AnimatedDefaultTextStyle(
+                duration: _slide,
                 style: AppText.caption.copyWith(
-                  color: color,
+                  color: active ? AppColors.primary : AppColors.textMuted,
                   fontWeight: active ? FontWeight.w700 : FontWeight.w500,
                 ),
+                child: Text(tab.label),
               ),
             ],
           ),

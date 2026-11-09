@@ -51,11 +51,17 @@ class CheckInSummary extends StatelessWidget {
               const SizedBox(height: 12),
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
-                child: LinearProgressIndicator(
-                  value: thisMonth / daysInMonth,
-                  minHeight: 8,
-                  color: AppColors.primary,
-                  backgroundColor: AppColors.primaryTint,
+                // Fills up smoothly when it appears and after each check-in.
+                child: TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0, end: thisMonth / daysInMonth),
+                  duration: const Duration(milliseconds: 900),
+                  curve: Curves.easeOutCubic,
+                  builder: (context, value, _) => LinearProgressIndicator(
+                    value: value,
+                    minHeight: 8,
+                    color: AppColors.primary,
+                    backgroundColor: AppColors.primaryTint,
+                  ),
                 ),
               ),
               const SizedBox(height: 12),

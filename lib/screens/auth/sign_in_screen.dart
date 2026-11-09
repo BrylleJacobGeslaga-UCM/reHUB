@@ -7,6 +7,7 @@ import '../../widgets/app_button.dart';
 import '../../widgets/app_text_field.dart';
 import '../../widgets/auth_hero.dart';
 import '../../widgets/or_divider.dart';
+import '../../widgets/splash_intro.dart';
 import 'sign_up_screen.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -22,6 +23,8 @@ class _SignInScreenState extends State<SignInScreen> {
   final _password = TextEditingController();
   bool _loading = false;
   bool _guestLoading = false;
+  final _heroKey = GlobalKey();
+  final _logoKey = GlobalKey();
 
   @override
   void dispose() {
@@ -77,14 +80,21 @@ class _SignInScreenState extends State<SignInScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
+      body: SplashIntro(
+        heroKey: _heroKey,
+        logoKey: _logoKey,
+        child: (intro) => SingleChildScrollView(
         child: Column(
           children: [
-            const AuthHero(
+            AuthHero(
+              key: _heroKey,
+              logoKey: _logoKey,
               title: 'Welcome back',
               subtitle: 'Rebuild with support, one day at a time.',
             ),
-            Padding(
+            _FadeUp(
+              progress: intro,
+              child: Padding(
               padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
               child: Form(
                 key: _formKey,
@@ -159,9 +169,36 @@ class _SignInScreenState extends State<SignInScreen> {
                   ],
                 ),
               ),
+              ),
             ),
           ],
         ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Fades the form in and lifts it slightly during the second half of the
+/// splash intro. Shows it straight away when there's no intro.
+class _FadeUp extends StatelessWidget {
+  const _FadeUp({required this.progress, required this.child});
+
+  final Animation<double> progress;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final curved = CurvedAnimation(
+      parent: progress,
+      curve: const Interval(0.5, 1, curve: Curves.easeOutCubic),
+    );
+    return FadeTransition(
+      opacity: curved,
+      child: SlideTransition(
+        position: Tween(begin: const Offset(0, 0.06), end: Offset.zero)
+            .animate(curved),
+        child: child,
       ),
     );
   }
