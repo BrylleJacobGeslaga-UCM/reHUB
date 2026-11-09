@@ -117,27 +117,41 @@ class PostCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsets.only(right: 8, top: 4),
             child: Row(
               children: [
-                for (final r in Reaction.values)
-                  Expanded(
-                    child: _ActionButton(
-                      icon: myReaction == r ? r.selectedIcon : r.icon,
-                      label: r.label,
-                      count: post.counts[r] ?? 0,
-                      selected: myReaction == r,
-                      onTap: () => onReact(r),
+                // Reactions on the left. If the screen is narrow the whole
+                // group shrinks evenly, so every chip stays the same size.
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      children: [
+                        for (final r in Reaction.values) ...[
+                          if (r != Reaction.values.first)
+                            const SizedBox(width: 6),
+                          _ReactionChip(
+                            icon: myReaction == r ? r.selectedIcon : r.icon,
+                            label: r.label,
+                            count: post.counts[r] ?? 0,
+                            selected: myReaction == r,
+                            onTap: () => onReact(r),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
-                Expanded(
-                  child: _ActionButton(
-                    icon: Icons.chat_bubble_outline_rounded,
-                    label: 'Comment',
-                    count: post.commentCount,
-                    selected: false,
-                    onTap: onComment,
-                  ),
+                ),
+                const SizedBox(width: 6),
+                // Comments on the right: just the bubble and the count.
+                _ReactionChip(
+                  icon: Icons.chat_bubble_outline_rounded,
+                  count: post.commentCount,
+                  selected: false,
+                  plain: true,
+                  semanticsLabel: 'Comments',
+                  onTap: onComment,
                 ),
               ],
             ),
@@ -181,63 +195,96 @@ class Avatar extends StatelessWidget {
   }
 }
 
-class _ActionButton extends StatelessWidget {
-  const _ActionButton({
+/// A rounded reaction chip: icon, label and count. The selected one is
+/// filled mint; the count animates when it changes.
+class _ReactionChip extends StatelessWidget {
+  const _ReactionChip({
     required this.icon,
-    required this.label,
     required this.count,
     required this.selected,
     required this.onTap,
+    this.label,
+    this.plain = false,
+    this.semanticsLabel,
   });
 
   final IconData icon;
-  final String label;
+  final String? label;
   final int count;
   final bool selected;
   final VoidCallback onTap;
 
+  /// No outline (used for the comment button).
+  final bool plain;
+  final String? semanticsLabel;
+
+  static const _duration = Duration(milliseconds: 220);
+
   @override
   Widget build(BuildContext context) {
     final color = selected ? AppColors.primary : AppColors.textMuted;
+    final textStyle = AppText.caption.copyWith(
+      color: color,
+      fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+    );
+
     return Semantics(
       button: true,
       selected: selected,
-      label: '$label, $count',
+      label: '${label ?? semanticsLabel ?? ''}, $count',
       excludeSemantics: true,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 2),
-        child: Material(
-          color: selected ? AppColors.primaryTint : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(12),
-            child: SizedBox(
-              height: 44,
-              child: Center(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Pop(
-                        active: selected,
-                        child: Icon(icon, size: 17, color: color),
-                      ),
-                      const SizedBox(width: 5),
-                      Text(
-                        count > 0 ? '$label $count' : label,
-                        style: AppText.caption.copyWith(
-                          color: color,
-                          fontWeight:
-                              selected ? FontWeight.w700 : FontWeight.w500,
-                        ),
-                      ),
-                    ],
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: _duration,
+          curve: Curves.easeOut,
+          height: 36,
+          padding: const EdgeInsets.symmetric(horizontal: 11),
+          decoration: BoxDecoration(
+            color: selected ? AppColors.primaryTint : Colors.transparent,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: plain
+                  ? Colors.transparent
+                  : selected
+                      ? AppColors.primarySoft
+                      : AppColors.border,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Pop(
+                active: selected,
+                child: Icon(icon, size: 17, color: color),
+              ),
+              if (label != null) ...[
+                const SizedBox(width: 5),
+                Text(label!, style: textStyle),
+              ],
+              // The number slides up/down when it changes.
+              AnimatedSwitcher(
+                duration: _duration,
+                transitionBuilder: (child, anim) => FadeTransition(
+                  opacity: anim,
+                  child: SizeTransition(
+                    sizeFactor: anim,
+                    axis: Axis.horizontal,
+                    child: child,
                   ),
                 ),
+                child: count > 0
+                    ? Padding(
+                        key: ValueKey(count),
+                        padding: const EdgeInsets.only(left: 6),
+                        child: Text('$count',
+                            style: textStyle.copyWith(
+                                fontWeight: FontWeight.w800)),
+                      )
+                    : const SizedBox.shrink(key: ValueKey(0)),
               ),
-            ),
+            ],
           ),
         ),
       ),

@@ -191,12 +191,12 @@ class _FadeUp extends StatelessWidget {
   Widget build(BuildContext context) {
     final curved = CurvedAnimation(
       parent: progress,
-      curve: const Interval(0.5, 1, curve: Curves.easeOutCubic),
+      curve: const Interval(0.55, 0.95, curve: Curves.easeOutCubic),
     );
     return FadeTransition(
       opacity: curved,
       child: SlideTransition(
-        position: Tween(begin: const Offset(0, 0.06), end: Offset.zero)
+        position: Tween(begin: const Offset(0, 0.12), end: Offset.zero)
             .animate(curved),
         child: child,
       ),

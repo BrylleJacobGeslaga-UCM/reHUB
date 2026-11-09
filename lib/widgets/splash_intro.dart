@@ -41,13 +41,13 @@ class SplashIntro extends StatefulWidget {
 class _SplashIntroState extends State<SplashIntro>
     with SingleTickerProviderStateMixin {
   late final _c = AnimationController(
-      vsync: this, duration: const Duration(milliseconds: 1150));
+      vsync: this, duration: const Duration(milliseconds: 1300));
   bool _done = false;
   Rect? _logoRect;
   double? _heroHeight;
 
   /// Roughly the size of the logo on the native splash screen.
-  static const _splashLogoSize = 98.0;
+  static const _splashLogoSize = 165.0;
 
   @override
   void initState() {
@@ -80,6 +80,15 @@ class _SplashIntroState extends State<SplashIntro>
     });
   }
 
+  Widget _circle(double size) => Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.white.withValues(alpha: 0.07),
+        ),
+      );
+
   @override
   void dispose() {
     _c.dispose();
@@ -100,7 +109,9 @@ class _SplashIntroState extends State<SplashIntro>
               animation: _c,
               builder: (context, _) {
                 final size = MediaQuery.sizeOf(context);
-                final t = Curves.easeInOutCubic.transform(_c.value);
+                final v = _c.value;
+                // 0 → 0.75: the green shrinks into the header shape.
+                final t = Curves.easeInOutCubic.transform((v / 0.75).clamp(0.0, 1.0));
                 final h = lerpDouble(size.height, _heroHeight ?? size.height, t)!;
                 final start = Rect.fromCenter(
                   center: size.center(Offset.zero),
@@ -108,32 +119,38 @@ class _SplashIntroState extends State<SplashIntro>
                   height: _splashLogoSize,
                 );
                 final logo = Rect.lerp(start, _logoRect ?? start, t)!;
-                // Fade the overlay out at the very end to reveal the real
-                // header (title, subtitle) underneath.
-                final fade = _c.value < 0.82 ? 1.0 : 1 - (_c.value - 0.82) / 0.18;
+                // 0.75 → 1: the overlay (now identical to the header, minus
+                // the text) fades away, so only the title and subtitle
+                // appear to fade in.
+                final fade = v < 0.75 ? 1.0 : 1 - (v - 0.75) / 0.25;
 
                 return Opacity(
                   opacity: fade.clamp(0.0, 1.0),
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        left: 0,
-                        right: 0,
-                        top: 0,
-                        height: h,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            color: AppColors.primary,
-                            borderRadius: BorderRadius.vertical(
-                                bottom: Radius.circular(32 * t)),
-                          ),
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: SizedBox(
+                      height: h,
+                      width: double.infinity,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.vertical(
+                            bottom: Radius.circular(32 * (t * 4).clamp(0.0, 1.0))),
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            const Positioned.fill(
+                                child: ColoredBox(color: AppColors.primary)),
+                            // Same soft circles as the header, so nothing
+                            // pops in at the end.
+                            Positioned(top: -70, right: -60, child: _circle(220)),
+                            Positioned(top: 150, left: -40, child: _circle(120)),
+                            Positioned.fromRect(
+                              rect: logo,
+                              child: SvgPicture.asset('assets/logo_white.svg'),
+                            ),
+                          ],
                         ),
                       ),
-                      Positioned.fromRect(
-                        rect: logo,
-                        child: SvgPicture.asset('assets/logo_white.svg'),
-                      ),
-                    ],
+                    ),
                   ),
                 );
               },
