@@ -59,7 +59,26 @@ class _SignUpScreenState extends State<SignUpScreen> {
     }
   }
 
+  /// True when Sign Up was opened from guest mode.
+  bool get _isGuest => AuthService.instance.currentUser?.isAnonymous ?? false;
+
+  /// "Already have an account? Sign in". Guests leave guest mode first
+  /// (they have no saved data), so AuthGate shows the Sign In screen.
+  Future<void> _goToSignIn() async {
+    if (_isGuest) {
+      await AuthService.instance.signOut();
+      _closeToRoot();
+    } else {
+      Navigator.of(context).pop();
+    }
+  }
+
   Future<void> _guest() async {
+    if (_isGuest) {
+      // Already a guest: just go back to browsing.
+      Navigator.of(context).pop();
+      return;
+    }
     setState(() => _guestLoading = true);
     try {
       await AuthService.instance.continueAsGuest();
@@ -132,13 +151,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     SwitchAuthRow(
                       question: 'Already have an account?',
                       action: 'Sign in',
-                      onTap: () => Navigator.of(context).pop(),
+                      onTap: _goToSignIn,
                     ),
                     const SizedBox(height: 8),
                     const OrDivider(),
                     const SizedBox(height: 16),
                     AppButton(
-                      label: 'Continue as guest',
+                      label: _isGuest
+                          ? 'Keep browsing as guest'
+                          : 'Continue as guest',
                       type: AppButtonType.secondary,
                       onPressed: _guest,
                       loading: _guestLoading,
