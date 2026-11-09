@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../services/hub_service.dart';
+import '../../services/reminder_service.dart';
 import '../../widgets/bottom_nav.dart';
 import '../../widgets/milestone_watcher.dart';
 import '../chat/chat_screen.dart';
@@ -29,6 +30,7 @@ class _AppShellState extends State<AppShell> {
     // Creates the starter hubs the very first time (only if none exist).
     if (!widget.user.isAnonymous) {
       HubService.instance.ensureSeeded().catchError((_) {});
+      ReminderService.instance.syncFrom(widget.profile);
     }
   }
 

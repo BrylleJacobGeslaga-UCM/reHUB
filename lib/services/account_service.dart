@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '../models/post.dart';
 import 'hub_service.dart';
+import 'reminder_service.dart';
 
 /// Permanently deleting an account and the user's data.
 class AccountService {
@@ -141,6 +142,8 @@ class AccountService {
       }
     }
     await tryIt(() => me.delete());
+
+    await tryIt(() => ReminderService.instance.cancel());
 
     // 7. Finally, the sign-in account itself.
     onStep('Deleting your account…');

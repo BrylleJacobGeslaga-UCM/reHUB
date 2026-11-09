@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 
 import '../../models/checkin.dart';
 import '../../services/checkin_service.dart';
+import '../../services/reminder_service.dart';
+import '../../services/user_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text.dart';
 import '../../widgets/app_button.dart';
@@ -48,6 +50,12 @@ class _CheckInScreenState extends State<CheckInScreen> {
     final messenger = ScaffoldMessenger.of(context);
     try {
       await CheckInService.instance.saveToday(widget.user.uid, mood, _note.text);
+      // Already checked in, so skip today's reminder.
+      UserService.instance
+          .userDoc(widget.user.uid)
+          .first
+          .then((d) => ReminderService.instance.checkedInToday(d.data()))
+          .catchError((_) {});
       if (!mounted) return;
       Navigator.of(context).pop();
       messenger.showSnackBar(SnackBar(

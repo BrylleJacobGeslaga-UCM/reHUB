@@ -10,7 +10,9 @@ import '../../widgets/sheets.dart';
 import '../auth/sign_up_screen.dart';
 import '../hubs/my_requests_screen.dart';
 import '../info/guidelines_screen.dart';
+import '../../services/reminder_service.dart';
 import 'blocked_screen.dart';
+import 'reminder_row.dart';
 import 'delete_account_screen.dart';
 
 void openSettings(BuildContext context, User user) {
@@ -47,6 +49,8 @@ class SettingsScreen extends StatelessWidget {
     );
     if (ok != true || !context.mounted) return;
     Navigator.of(context).popUntil((r) => r.isFirst);
+    // Reminders belong to this account; stop them on this phone.
+    await ReminderService.instance.cancel().catchError((_) {});
     await AuthService.instance.signOut();
   }
 
@@ -99,6 +103,11 @@ class SettingsScreen extends StatelessWidget {
                         onTap: () => openBlocked(context, user),
                       ),
                   ]),
+                  if (!guest) ...[
+                    const SizedBox(height: 20),
+                    const _Label('Reminders'),
+                    _Group(children: [ReminderRow(user: user)]),
+                  ],
                   const SizedBox(height: 20),
                   const _Label('Support'),
                   _Group(children: [
