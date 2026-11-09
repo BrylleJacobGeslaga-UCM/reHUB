@@ -10,7 +10,10 @@ import '../../widgets/screen_header.dart';
 
 /// Admin-only: approve or decline suggested hubs.
 class ReviewRequestsScreen extends StatelessWidget {
-  const ReviewRequestsScreen({super.key});
+  const ReviewRequestsScreen({super.key, this.embedded = false});
+
+  /// True when shown as a tab inside the Admin screen (no header).
+  final bool embedded;
 
   Future<void> _approve(BuildContext context, HubRequest r) async {
     final messenger = ScaffoldMessenger.of(context);
@@ -63,6 +66,69 @@ class ReviewRequestsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final list = Padding(
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+        child: StreamBuilder<List<HubRequest>>(
+          stream: HubRequestService.instance.pending(),
+          builder: (context, snap) {
+            if (snap.hasError) {
+              return const EmptyState(
+                icon: Icons.lock_outline_rounded,
+                title: 'Admins only',
+                message: 'Your account doesn’t have admin access.',
+              );
+            }
+            if (!snap.hasData) {
+              return const Padding(
+                padding: EdgeInsets.all(32),
+                child: Center(
+                  child: CircularProgressIndicator(
+                      color: AppColors.primary),
+                ),
+              );
+            }
+            final requests = snap.data!;
+            if (requests.isEmpty) {
+              return const EmptyState(
+                icon: Icons.inbox_outlined,
+                title: 'All caught up',
+                message: 'No hub suggestions are waiting for review.',
+              );
+            }
+            return Column(
+              children: [
+                for (final r in requests)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 14),
+                    child: RequestCard(
+                      request: r,
+                      showRequester: true,
+                      actions: Row(
+                        children: [
+                          Expanded(
+                            child: AppButton(
+                              label: 'Decline',
+                              type: AppButtonType.danger,
+                              onPressed: () => _decline(context, r),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: AppButton(
+                              label: 'Approve',
+                              onPressed: () => _approve(context, r),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
+      );
+    if (embedded) return SingleChildScrollView(child: list);
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -73,68 +139,7 @@ class ReviewRequestsScreen extends StatelessWidget {
               subtitle: 'Review suggestions from members',
               onBack: () => Navigator.of(context).pop(),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
-              child: StreamBuilder<List<HubRequest>>(
-                stream: HubRequestService.instance.pending(),
-                builder: (context, snap) {
-                  if (snap.hasError) {
-                    return const EmptyState(
-                      icon: Icons.lock_outline_rounded,
-                      title: 'Admins only',
-                      message: 'Your account doesn’t have admin access.',
-                    );
-                  }
-                  if (!snap.hasData) {
-                    return const Padding(
-                      padding: EdgeInsets.all(32),
-                      child: Center(
-                        child: CircularProgressIndicator(
-                            color: AppColors.primary),
-                      ),
-                    );
-                  }
-                  final requests = snap.data!;
-                  if (requests.isEmpty) {
-                    return const EmptyState(
-                      icon: Icons.inbox_outlined,
-                      title: 'All caught up',
-                      message: 'No hub suggestions are waiting for review.',
-                    );
-                  }
-                  return Column(
-                    children: [
-                      for (final r in requests)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 14),
-                          child: RequestCard(
-                            request: r,
-                            showRequester: true,
-                            actions: Row(
-                              children: [
-                                Expanded(
-                                  child: AppButton(
-                                    label: 'Decline',
-                                    type: AppButtonType.danger,
-                                    onPressed: () => _decline(context, r),
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: AppButton(
-                                    label: 'Approve',
-                                    onPressed: () => _approve(context, r),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                    ],
-                  );
-                },
-              ),
-            ),
+            list,
           ],
         ),
       ),

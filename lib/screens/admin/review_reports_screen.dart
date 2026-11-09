@@ -12,7 +12,10 @@ import '../../widgets/screen_header.dart';
 
 /// Admin-only: review reported posts, comments and chat messages.
 class ReviewReportsScreen extends StatelessWidget {
-  const ReviewReportsScreen({super.key});
+  const ReviewReportsScreen({super.key, this.embedded = false});
+
+  /// True when shown as a tab inside the Admin screen (no header).
+  final bool embedded;
 
   Future<void> _remove(BuildContext context, Report r) async {
     final ok = await showDialog<bool>(
@@ -55,6 +58,52 @@ class ReviewReportsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final list = Padding(
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+        child: StreamBuilder<List<Report>>(
+          stream: ReportService.instance.open(),
+          builder: (context, snap) {
+            if (snap.hasError) {
+              return const EmptyState(
+                icon: Icons.lock_outline_rounded,
+                title: 'Admins only',
+                message: 'Your account doesn’t have admin access.',
+              );
+            }
+            if (!snap.hasData) {
+              return const Padding(
+                padding: EdgeInsets.all(32),
+                child: Center(
+                  child: CircularProgressIndicator(
+                      color: AppColors.primary),
+                ),
+              );
+            }
+            final reports = snap.data!;
+            if (reports.isEmpty) {
+              return const EmptyState(
+                icon: Icons.verified_user_outlined,
+                title: 'No open reports',
+                message: 'Nothing needs your attention right now.',
+              );
+            }
+            return Column(
+              children: [
+                for (final r in reports)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 14),
+                    child: _ReportCard(
+                      report: r,
+                      onRemove: () => _remove(context, r),
+                      onDismiss: () => _dismiss(context, r),
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
+      );
+    if (embedded) return SingleChildScrollView(child: list);
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -65,51 +114,7 @@ class ReviewReportsScreen extends StatelessWidget {
               subtitle: 'Keep the community safe',
               onBack: () => Navigator.of(context).pop(),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
-              child: StreamBuilder<List<Report>>(
-                stream: ReportService.instance.open(),
-                builder: (context, snap) {
-                  if (snap.hasError) {
-                    return const EmptyState(
-                      icon: Icons.lock_outline_rounded,
-                      title: 'Admins only',
-                      message: 'Your account doesn’t have admin access.',
-                    );
-                  }
-                  if (!snap.hasData) {
-                    return const Padding(
-                      padding: EdgeInsets.all(32),
-                      child: Center(
-                        child: CircularProgressIndicator(
-                            color: AppColors.primary),
-                      ),
-                    );
-                  }
-                  final reports = snap.data!;
-                  if (reports.isEmpty) {
-                    return const EmptyState(
-                      icon: Icons.verified_user_outlined,
-                      title: 'No open reports',
-                      message: 'Nothing needs your attention right now.',
-                    );
-                  }
-                  return Column(
-                    children: [
-                      for (final r in reports)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 14),
-                          child: _ReportCard(
-                            report: r,
-                            onRemove: () => _remove(context, r),
-                            onDismiss: () => _dismiss(context, r),
-                          ),
-                        ),
-                    ],
-                  );
-                },
-              ),
-            ),
+            list,
           ],
         ),
       ),

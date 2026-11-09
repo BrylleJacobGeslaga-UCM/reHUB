@@ -12,6 +12,9 @@ import '../../widgets/hub_row.dart';
 import '../../widgets/screen_header.dart';
 import '../../widgets/sheets.dart';
 import 'hub_detail_screen.dart';
+import '../../models/hub_request.dart';
+import '../../services/hub_request_service.dart';
+import 'my_requests_screen.dart';
 import 'request_hub_screen.dart';
 
 enum _Filter { all, online, outdoors }
@@ -166,6 +169,30 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                       ],
                     ),
                   ),
+                  if (!widget.user.isAnonymous)
+                    StreamBuilder<List<HubRequest>>(
+                      stream:
+                          HubRequestService.instance.myRequests(widget.user.uid),
+                      builder: (context, snap) {
+                        final n = snap.data?.length ?? 0;
+                        if (n == 0) return const SizedBox.shrink();
+                        return Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton.icon(
+                            onPressed: () => openMyRequests(context, widget.user),
+                            icon: const Icon(Icons.outbox_outlined,
+                                size: 18, color: AppColors.primary),
+                            label: Text(
+                                n == 1
+                                    ? 'Your suggestion'
+                                    : 'Your suggestions ($n)',
+                                style: AppText.caption.copyWith(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.w700)),
+                          ),
+                        );
+                      },
+                    ),
                   const SizedBox(height: 16),
                   StreamBuilder<List<Hub>>(
                     stream: HubService.instance.hubs(),

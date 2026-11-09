@@ -13,6 +13,7 @@ class ScreenHeader extends StatelessWidget {
     this.onBack,
     this.step,
     this.trailing,
+    this.actions = const [],
   });
 
   final String title;
@@ -20,6 +21,9 @@ class ScreenHeader extends StatelessWidget {
   final VoidCallback? onBack;
   final String? step;
   final Widget? trailing;
+
+  /// Small icon buttons shown at the top right (e.g. settings).
+  final List<Widget> actions;
 
   Widget _circle(double size) => Container(
         width: size,
@@ -32,7 +36,7 @@ class ScreenHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasTopRow = onBack != null || step != null;
+    final hasTopRow = onBack != null || step != null || actions.isNotEmpty;
 
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(bottom: Radius.circular(28)),
@@ -65,6 +69,10 @@ class ScreenHeader extends StatelessWidget {
                                 ),
                               const Spacer(),
                               if (step != null) _StepChip(step!),
+                              for (final a in actions) ...[
+                                const SizedBox(width: 8),
+                                a,
+                              ],
                             ],
                           ),
                         ),
