@@ -83,9 +83,15 @@ class ScreenHeader extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                // Long names: at most 2 lines, then "…".
                                 Text(title,
-                                    style: AppText.display
-                                        .copyWith(color: Colors.white)),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: AppText.display.copyWith(
+                                        color: Colors.white,
+                                        fontSize: title.length > 24
+                                            ? 26
+                                            : null)),
                                 if (subtitle != null) ...[
                                   const SizedBox(height: 6),
                                   Text(

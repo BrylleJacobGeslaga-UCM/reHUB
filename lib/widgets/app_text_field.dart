@@ -16,6 +16,7 @@ class AppTextField extends StatefulWidget {
     this.keyboardType,
     this.textInputAction,
     this.validator,
+    this.maxLength,
   });
 
   final String label;
@@ -26,6 +27,9 @@ class AppTextField extends StatefulWidget {
   final TextInputType? keyboardType;
   final TextInputAction? textInputAction;
   final String? Function(String?)? validator;
+
+  /// Limits the length and shows a small "12/30" counter.
+  final int? maxLength;
 
   @override
   State<AppTextField> createState() => _AppTextFieldState();
@@ -53,6 +57,7 @@ class _AppTextFieldState extends State<AppTextField> {
           keyboardType: widget.keyboardType,
           textInputAction: widget.textInputAction,
           validator: widget.validator,
+          maxLength: widget.maxLength,
           style: AppText.body,
           decoration: InputDecoration(
             hintText: widget.hint,
@@ -81,6 +86,8 @@ class _AppTextFieldState extends State<AppTextField> {
             errorBorder: _border(AppColors.danger),
             focusedErrorBorder: _border(AppColors.danger),
             errorStyle: AppText.caption.copyWith(color: AppColors.danger),
+            counterStyle:
+                AppText.label.copyWith(color: AppColors.textSubtle),
           ),
         ),
       ],

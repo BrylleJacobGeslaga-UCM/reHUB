@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import 'avatar.dart';
+
 enum Reaction { support, proud, relate }
 
 extension ReactionStyle on Reaction {
@@ -35,7 +37,8 @@ int _count(Object? v) {
   return n < 0 ? 0 : n;
 }
 
-String _initialsOf(String name) {
+/// "Brylle Geslaga" → "BG".
+String initialsOf(String name) {
   final parts = name.trim().split(RegExp(r'\s+'));
   final first = parts.first.isNotEmpty ? parts.first[0] : '?';
   final last = parts.length > 1 && parts.last.isNotEmpty ? parts.last[0] : '';
@@ -59,6 +62,7 @@ class Post {
     required this.counts,
     required this.commentCount,
     this.authorId,
+    this.authorAvatar,
   });
 
   final String id;
@@ -74,9 +78,12 @@ class Post {
   /// Only set on named (non-anonymous) posts, so members can block authors.
   final String? authorId;
 
+  /// The author's avatar (named posts only).
+  final AvatarStyle? authorAvatar;
+
   String get displayName =>
       anonymous ? 'Anonymous member' : (authorName ?? 'Member');
-  String get initials => _initialsOf(displayName);
+  String get initials => initialsOf(displayName);
 
   factory Post.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
     final d = doc.data() ?? const {};
@@ -93,6 +100,7 @@ class Post {
       counts: {for (final r in Reaction.values) r: _count(raw[r.name])},
       commentCount: _count(d['commentCount']),
       authorId: d['authorId'] as String?,
+      authorAvatar: AvatarStyle.parse(d['authorAvatar']),
     );
   }
 }
@@ -107,12 +115,14 @@ class Comment {
     required this.body,
     required this.createdAt,
     this.authorId,
+    this.authorAvatar,
   });
 
   final String id;
 
   /// Only set on named (non-anonymous) comments.
   final String? authorId;
+  final AvatarStyle? authorAvatar;
   final String? authorName;
   final bool anonymous;
   final String body;
@@ -120,7 +130,7 @@ class Comment {
 
   String get displayName =>
       anonymous ? 'Anonymous member' : (authorName ?? 'Member');
-  String get initials => _initialsOf(displayName);
+  String get initials => initialsOf(displayName);
 
   factory Comment.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
     final d = doc.data() ?? const {};
@@ -131,6 +141,7 @@ class Comment {
       body: d['body'] as String? ?? '',
       createdAt: (d['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       authorId: d['authorId'] as String?,
+      authorAvatar: AvatarStyle.parse(d['authorAvatar']),
     );
   }
 }

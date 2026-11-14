@@ -10,6 +10,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_text.dart';
 import '../../widgets/app_button.dart';
 import '../../widgets/app_card.dart';
+import '../../widgets/author.dart';
 import '../../models/report.dart';
 import '../../widgets/post_card.dart';
 import '../../widgets/report_sheet.dart';
@@ -83,6 +84,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
         authorName: (widget.profile['name'] as String?) ??
             widget.user.displayName ??
             'Member',
+        authorAvatar: widget.profile['avatar'] as String?,
       );
       _input.clear();
       if (mounted) FocusScope.of(context).unfocus();
@@ -350,12 +352,17 @@ class _CommentTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppCard(
       padding: const EdgeInsets.fromLTRB(14, 12, 4, 12),
-      child: Row(
+      child: AuthorBuilder(
+        uid: comment.anonymous ? null : comment.authorId,
+        name: comment.displayName,
+        avatar: comment.authorAvatar,
+        builder: (context, name, avatar) => Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Avatar(
-            initials: comment.initials,
+            initials: initialsOf(name),
             anonymous: comment.anonymous,
+            avatar: avatar,
             size: 34,
           ),
           const SizedBox(width: 10),
@@ -367,9 +374,7 @@ class _CommentTile extends StatelessWidget {
                   children: [
                     Flexible(
                       child: Text(
-                        isMine
-                            ? '${comment.displayName} (you)'
-                            : comment.displayName,
+                        isMine ? '$name (you)' : name,
                         overflow: TextOverflow.ellipsis,
                         style: AppText.caption.copyWith(
                             color: AppColors.text,
@@ -405,10 +410,11 @@ class _CommentTile extends StatelessWidget {
                 if (onBlock != null)
                   PopupMenuItem(
                       value: 'block',
-                      child: Text('Block ${comment.displayName}')),
+                      child: Text('Block $name')),
               ],
             ),
         ],
+      ),
       ),
     );
   }

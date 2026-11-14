@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/hub.dart';
 import '../../models/message.dart';
+import '../../models/post.dart' show initialsOf;
 import '../../services/block_service.dart';
 import '../../services/chat_service.dart';
 import '../../services/user_service.dart';
@@ -12,6 +13,8 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_text.dart';
 import '../../models/report.dart';
 import '../../widgets/app_card.dart';
+import '../../widgets/author.dart';
+import '../../widgets/post_card.dart' show Avatar;
 import '../../widgets/report_sheet.dart';
 import '../../widgets/screen_header.dart';
 
@@ -36,6 +39,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
   late final Stream<List<Message>> _messages =
       ChatService.instance.messages(widget.hub.id);
   String _myName = 'Member';
+  String? _myAvatar;
   DateTime? _markedUpTo;
 
   Map<String, String> _blocked = const {};
@@ -57,7 +61,13 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     try {
       final d = await UserService.instance.userDoc(widget.user.uid).first;
       final n = d.data()?['name'] as String?;
-      if (n != null && mounted) setState(() => _myName = n);
+      final a = d.data()?['avatar'] as String?;
+      if (mounted) {
+        setState(() {
+          if (n != null) _myName = n;
+          _myAvatar = a;
+        });
+      }
     } catch (_) {}
   }
 
@@ -95,6 +105,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
         uid: widget.user.uid,
         name: _myName,
         body: text,
+        avatar: _myAvatar,
       );
     } catch (_) {
       _input.text = text; // give it back so nothing is lost
@@ -395,9 +406,32 @@ class _Bubble extends StatelessWidget {
         children: [
           if (showName)
             Padding(
-              padding: const EdgeInsets.only(left: 12, bottom: 3),
-              child: Text(message.senderName,
-                  style: AppText.label.copyWith(color: AppColors.primary)),
+              padding: const EdgeInsets.only(left: 4, bottom: 4),
+              child: AuthorBuilder(
+                uid: message.senderId,
+                name: message.senderName,
+                avatar: message.senderAvatar,
+                builder: (context, name, avatar) => Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Avatar(
+                      initials: initialsOf(name),
+                      anonymous: false,
+                      avatar: avatar,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 6),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: maxWidth - 26),
+                      child: Text(name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppText.label
+                              .copyWith(color: AppColors.primary)),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ConstrainedBox(
             constraints: BoxConstraints(maxWidth: maxWidth),

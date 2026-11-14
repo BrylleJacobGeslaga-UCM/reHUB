@@ -99,6 +99,7 @@ class PostService {
     required String body,
     required bool anonymous,
     required String authorName,
+    String? authorAvatar,
   }) {
     final postRef = _posts.doc();
     final batch = _db.batch();
@@ -108,6 +109,7 @@ class PostService {
       'authorName': anonymous ? null : authorName,
       // Named posts record the author (for blocking); anonymous ones never do.
       if (!anonymous) 'authorId': uid,
+      if (!anonymous && authorAvatar != null) 'authorAvatar': authorAvatar,
       'anonymous': anonymous,
       'body': body.trim(),
       'createdAt': FieldValue.serverTimestamp(),
@@ -198,6 +200,7 @@ class PostService {
     required String body,
     required bool anonymous,
     required String authorName,
+    String? authorAvatar,
   }) {
     final postRef = _posts.doc(postId);
     final commentRef = postRef.collection('comments').doc();
@@ -205,6 +208,7 @@ class PostService {
     batch.set(commentRef, {
       'authorName': anonymous ? null : authorName,
       if (!anonymous) 'authorId': uid,
+      if (!anonymous && authorAvatar != null) 'authorAvatar': authorAvatar,
       'anonymous': anonymous,
       'body': body.trim(),
       'createdAt': FieldValue.serverTimestamp(),

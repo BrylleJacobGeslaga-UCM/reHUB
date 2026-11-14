@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../models/avatar.dart' show maxNameLength;
 import '../../services/auth_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text.dart';
@@ -115,6 +116,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       hint: 'What should we call you?',
                       icon: Icons.person_outline_rounded,
                       controller: _name,
+                      maxLength: maxNameLength,
                       textInputAction: TextInputAction.next,
                       validator: (v) => (v == null || v.trim().length < 2)
                           ? 'Enter at least 2 characters'

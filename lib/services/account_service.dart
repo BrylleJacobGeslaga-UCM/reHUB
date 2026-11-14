@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../models/post.dart';
 import 'hub_service.dart';
 import 'reminder_service.dart';
+import 'public_profile_service.dart';
 
 /// Permanently deleting an account and the user's data.
 class AccountService {
@@ -142,6 +143,7 @@ class AccountService {
       }
     }
     await tryIt(() => me.delete());
+    await tryIt(() => PublicProfileService.instance.delete(uid));
 
     await tryIt(() => ReminderService.instance.cancel());
 

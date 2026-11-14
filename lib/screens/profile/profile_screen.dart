@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../models/avatar.dart';
 import '../../models/hub.dart';
 import '../../models/onboarding_options.dart';
 import '../../services/hub_service.dart';
@@ -9,6 +10,7 @@ import '../../theme/app_text.dart';
 import '../../widgets/app_button.dart';
 import '../../widgets/app_card.dart';
 import '../../widgets/checkin_summary.dart';
+import '../../widgets/post_card.dart' show Avatar;
 import '../../widgets/screen_header.dart';
 import '../../widgets/sheets.dart';
 import '../admin/admin_screen.dart';
@@ -17,6 +19,7 @@ import '../goals/goals_screen.dart';
 import '../goals/plan_screen.dart';
 import '../hubs/discover_screen.dart';
 import '../hubs/hub_detail_screen.dart';
+import 'edit_profile_screen.dart';
 import 'settings_screen.dart';
 
 /// Profile: your progress and your stuff. Rarely-used things live in
@@ -60,21 +63,23 @@ class ProfileScreen extends StatelessWidget {
                 onTap: () => openSettings(context, user),
               ),
             ],
-            trailing: Container(
-              width: 64,
-              height: 64,
-              alignment: Alignment.center,
-              decoration: const BoxDecoration(
-                color: AppColors.surface,
-                shape: BoxShape.circle,
-              ),
-              child: isGuest
-                  ? const Icon(Icons.person_outline_rounded,
-                      size: 30, color: AppColors.primary)
-                  : Text(_initials(name),
-                      style: AppText.heading
-                          .copyWith(color: AppColors.primary)),
-            ),
+            trailing: isGuest
+                ? Container(
+                    width: 64,
+                    height: 64,
+                    alignment: Alignment.center,
+                    decoration: const BoxDecoration(
+                      color: AppColors.surface,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.person_outline_rounded,
+                        size: 30, color: AppColors.primary),
+                  )
+                : _ProfileAvatar(
+                    initials: _initials(name),
+                    avatar: AvatarStyle.of(profile),
+                    onTap: () => openEditProfile(context, user, profile),
+                  ),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
@@ -363,6 +368,80 @@ class _JoinedHubs extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+/// Your avatar in the profile header, with a small pencil: tap to edit
+/// your name and avatar.
+class _ProfileAvatar extends StatelessWidget {
+  const _ProfileAvatar({
+    required this.initials,
+    required this.avatar,
+    required this.onTap,
+  });
+
+  final String initials;
+  final AvatarStyle? avatar;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: 'Edit profile',
+      child: GestureDetector(
+        onTap: onTap,
+        child: SizedBox(
+          width: 70,
+          height: 70,
+          child: Stack(
+            children: [
+              Container(
+                width: 68,
+                height: 68,
+                padding: const EdgeInsets.all(3),
+                decoration: const BoxDecoration(
+                  color: AppColors.surface,
+                  shape: BoxShape.circle,
+                ),
+                child: avatar == null
+                    ? Container(
+                        alignment: Alignment.center,
+                        decoration: const BoxDecoration(
+                          color: AppColors.surface,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(initials,
+                            style: AppText.heading
+                                .copyWith(color: AppColors.primary)),
+                      )
+                    : Avatar(
+                        initials: initials,
+                        anonymous: false,
+                        avatar: avatar,
+                        size: 62,
+                      ),
+              ),
+              Positioned(
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  width: 26,
+                  height: 26,
+                  decoration: BoxDecoration(
+                    color: AppColors.accent,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: AppColors.primary, width: 2),
+                  ),
+                  child: const Icon(Icons.edit_rounded,
+                      size: 13, color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

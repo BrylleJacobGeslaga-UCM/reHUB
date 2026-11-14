@@ -62,6 +62,7 @@ class _ComposeScreenState extends State<ComposeScreen> {
         authorName: (widget.profile['name'] as String?) ??
             widget.user.displayName ??
             'Member',
+        authorAvatar: widget.profile['avatar'] as String?,
       );
       if (!mounted) return;
       Navigator.of(context).pop();

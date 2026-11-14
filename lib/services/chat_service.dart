@@ -33,10 +33,12 @@ class ChatService {
     required String uid,
     required String name,
     required String body,
+    String? avatar,
   }) {
     return _messages(hubId).add({
       'senderId': uid,
       'senderName': name,
+      if (avatar != null) 'senderAvatar': avatar,
       'body': body.trim(),
       'createdAt': FieldValue.serverTimestamp(),
     });

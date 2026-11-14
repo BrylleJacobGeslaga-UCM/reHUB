@@ -22,12 +22,29 @@ const _pillWidth = 64.0;
 const _pillHeight = 32.0;
 const _slide = Duration(milliseconds: 320);
 
-/// Bottom navigation. One mint pill slides over to the tab you tap.
+/// Bottom navigation. One mint pill slides to the tab you tap, and follows
+/// your finger when you swipe between tabs.
 class BottomNav extends StatelessWidget {
-  const BottomNav({super.key, required this.index, required this.onTap});
+  const BottomNav({
+    super.key,
+    required this.index,
+    required this.onTap,
+    this.pages,
+  });
 
   final int index;
   final ValueChanged<int> onTap;
+
+  /// The tabs' page controller; the pill tracks its position.
+  final PageController? pages;
+
+  double _position() {
+    final p = pages;
+    if (p == null || !p.hasClients || p.position.haveDimensions == false) {
+      return index.toDouble();
+    }
+    return p.page ?? index.toDouble();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,17 +63,19 @@ class BottomNav extends StatelessWidget {
               return Stack(
                 children: [
                   // The sliding pill, drawn behind the icons.
-                  AnimatedPositioned(
-                    duration: _slide,
-                    curve: Curves.easeOutBack,
-                    top: 4,
-                    left: slot * index + (slot - _pillWidth) / 2,
-                    width: _pillWidth,
-                    height: _pillHeight,
-                    child: const DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryTint,
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
+                  AnimatedBuilder(
+                    animation: pages ?? const AlwaysStoppedAnimation(0),
+                    builder: (context, _) => Positioned(
+                      top: 4,
+                      left: slot * _position() + (slot - _pillWidth) / 2,
+                      width: _pillWidth,
+                      height: _pillHeight,
+                      child: const DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryTint,
+                          borderRadius:
+                              BorderRadius.all(Radius.circular(16)),
+                        ),
                       ),
                     ),
                   ),

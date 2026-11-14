@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'avatar.dart';
+
 /// A chat message, stored at hubs/{hubId}/messages/{id}.
 class Message {
   const Message({
@@ -9,6 +11,7 @@ class Message {
     required this.body,
     required this.createdAt,
     this.pending = false,
+    this.senderAvatar,
   });
 
   final String id;
@@ -20,6 +23,8 @@ class Message {
   /// True while the message is still being sent.
   final bool pending;
 
+  final AvatarStyle? senderAvatar;
+
   factory Message.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
     final d = doc.data() ?? const {};
     return Message(
@@ -29,6 +34,7 @@ class Message {
       body: d['body'] as String? ?? '',
       createdAt: (d['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       pending: doc.metadata.hasPendingWrites,
+      senderAvatar: AvatarStyle.parse(d['senderAvatar']),
     );
   }
 }

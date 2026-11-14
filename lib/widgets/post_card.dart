@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../models/avatar.dart';
 import '../models/post.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
 import 'app_card.dart';
+import 'author.dart';
 import 'pop.dart';
 
 /// Matches the Figma "Post Card" component.
@@ -38,11 +40,16 @@ class PostCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
+          AuthorBuilder(
+            uid: post.anonymous ? null : post.authorId,
+            name: post.displayName,
+            avatar: post.authorAvatar,
+            builder: (context, name, avatar) => Row(
             children: [
               Avatar(
-                initials: post.initials,
+                initials: initialsOf(name),
                 anonymous: post.anonymous,
+                avatar: avatar,
                 size: 44,
               ),
               const SizedBox(width: 12),
@@ -54,9 +61,7 @@ class PostCard extends StatelessWidget {
                       children: [
                         Flexible(
                           child: Text(
-                            isMine
-                                ? '${post.displayName} (you)'
-                                : post.displayName,
+                            isMine ? '$name (you)' : name,
                             style: AppText.bodyStrong,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -101,11 +106,12 @@ class PostCard extends StatelessWidget {
                       if (onBlock != null && post.authorId != null)
                         PopupMenuItem(
                             value: 'block',
-                            child: Text('Block ${post.displayName}')),
+                            child: Text('Block $name')),
                     ],
                   ],
                 ),
             ],
+          ),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 14, 8, 12),
@@ -162,35 +168,44 @@ class PostCard extends StatelessWidget {
   }
 }
 
-/// Round initials avatar, or a shield for anonymous authors.
+/// Round avatar: the person's chosen icon and color, their initials if they
+/// haven't picked one, or a shield for anonymous authors.
 class Avatar extends StatelessWidget {
   const Avatar({
     super.key,
     required this.initials,
     required this.anonymous,
+    this.avatar,
     this.size = 44,
   });
 
   final String initials;
   final bool anonymous;
+  final AvatarStyle? avatar;
   final double size;
 
   @override
   Widget build(BuildContext context) {
+    final style = anonymous ? null : avatar;
     return Container(
       width: size,
       height: size,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: anonymous ? AppColors.primaryTint : AppColors.accentTint,
+        color: anonymous
+            ? AppColors.primaryTint
+            : style?.color.background ?? AppColors.accentTint,
         shape: BoxShape.circle,
       ),
       child: anonymous
           ? Icon(Icons.shield_outlined,
               size: size * 0.5, color: AppColors.primary)
-          : Text(initials,
-              style: AppText.bodyStrong.copyWith(
-                  fontWeight: FontWeight.w700, fontSize: size * 0.34)),
+          : style != null
+              ? Icon(style.icon,
+                  size: size * 0.52, color: style.color.foreground)
+              : Text(initials,
+                  style: AppText.bodyStrong.copyWith(
+                      fontWeight: FontWeight.w700, fontSize: size * 0.34)),
     );
   }
 }

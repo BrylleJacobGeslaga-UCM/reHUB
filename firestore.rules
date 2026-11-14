@@ -39,6 +39,11 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
 
+    // An avatar code like "eco.mint" (or '' for none).
+    function okAvatar(v) {
+      return v is string && v.size() <= 24;
+    }
+
     function isMemberOf(hubId) {
       return exists(/databases/$(database)/documents/hubs/$(hubId)/members/$(request.auth.uid));
     }
@@ -116,6 +121,22 @@ service cloud.firestore {
       allow delete: if isRealUser()
         && resource.data.requestedBy == request.auth.uid
         && resource.data.status == 'pending';
+    }
+
+    // ---------- public profiles ----------
+    // Just a name and an avatar, so posts, comments and messages can show
+    // someone's current ones. Anyone signed in can read; only you can write
+    // yours. Nothing private ever goes here.
+    match /profiles/{uid} {
+      allow read: if signedIn();
+      allow create, update: if isMe(uid) && isRealUser()
+        && request.resource.data.keys().hasOnly(['name', 'avatar'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 60
+        && (request.resource.data.avatar == null
+            || okAvatar(request.resource.data.avatar));
+      allow delete: if isMe(uid);
     }
 
     // ---------- users ----------
@@ -205,9 +226,10 @@ service cloud.firestore {
         allow create: if isRealUser()
           && exists(memberPath())
           && request.resource.data.keys().hasOnly(
-               ['senderId', 'senderName', 'body', 'createdAt'])
+               ['senderId', 'senderName', 'senderAvatar', 'body', 'createdAt'])
           && request.resource.data.senderId == request.auth.uid
           && request.resource.data.senderName is string
+          && okAvatar(request.resource.data.get('senderAvatar', ''))
           && request.resource.data.body is string
           && request.resource.data.body.size() > 0
           && request.resource.data.body.size() <= 1000
@@ -311,8 +333,8 @@ service cloud.firestore {
         && existsAfter(myMarker())
         && exists(/databases/$(database)/documents/hubs/$(request.resource.data.hubId)/members/$(request.auth.uid))
         && request.resource.data.keys().hasOnly(
-             ['hubId', 'hubName', 'authorName', 'authorId', 'anonymous', 'body',
-              'createdAt', 'reactions', 'commentCount'])
+             ['hubId', 'hubName', 'authorName', 'authorId', 'authorAvatar',
+              'anonymous', 'body', 'createdAt', 'reactions', 'commentCount'])
         && request.resource.data.body is string
         && request.resource.data.body.size() > 0
         && request.resource.data.body.size() <= 1000
@@ -323,12 +345,14 @@ service cloud.firestore {
           // Anonymous: no name and no author id, ever.
           (request.resource.data.anonymous == true
             && request.resource.data.authorName == null
-            && !('authorId' in request.resource.data))
+            && !('authorId' in request.resource.data)
+            && !('authorAvatar' in request.resource.data))
           ||
           // Named: your name, and your own id (so others can block you).
           (request.resource.data.anonymous == false
             && request.resource.data.authorName is string
-            && request.resource.data.get('authorId', request.auth.uid) == request.auth.uid)
+            && request.resource.data.get('authorId', request.auth.uid) == request.auth.uid
+            && okAvatar(request.resource.data.get('authorAvatar', '')))
         );
 
       // Reactions or comment count: may only move by one at a time.
@@ -365,7 +389,8 @@ service cloud.firestore {
           && existsAfter(myCommentMarker())
           && exists(/databases/$(database)/documents/hubs/$(postHub())/members/$(request.auth.uid))
           && request.resource.data.keys().hasOnly(
-               ['authorName', 'authorId', 'anonymous', 'body', 'createdAt'])
+               ['authorName', 'authorId', 'authorAvatar', 'anonymous', 'body',
+                'createdAt'])
           && request.resource.data.body is string
           && request.resource.data.body.size() > 0
           && request.resource.data.body.size() <= 500
@@ -373,11 +398,13 @@ service cloud.firestore {
           && (
             (request.resource.data.anonymous == true
               && request.resource.data.authorName == null
-              && !('authorId' in request.resource.data))
+              && !('authorId' in request.resource.data)
+              && !('authorAvatar' in request.resource.data))
             ||
             (request.resource.data.anonymous == false
               && request.resource.data.authorName is string
-              && request.resource.data.get('authorId', request.auth.uid) == request.auth.uid)
+              && request.resource.data.get('authorId', request.auth.uid) == request.auth.uid
+              && okAvatar(request.resource.data.get('authorAvatar', '')))
           );
 
         allow delete: if isAdmin()
