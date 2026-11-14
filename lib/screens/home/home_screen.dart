@@ -9,6 +9,7 @@ import '../../widgets/app_card.dart';
 import '../../widgets/hub_row.dart';
 import '../../widgets/screen_header.dart';
 import '../../widgets/checkin_card.dart';
+import '../../widgets/entrance.dart';
 import '../hubs/discover_screen.dart';
 import '../hubs/hub_detail_screen.dart';
 
@@ -58,6 +59,8 @@ class HomeScreen extends StatelessWidget {
     final first = _firstName();
     final interests = List<String>.from(profile['interests'] ?? const []);
     final joined = List<String>.from(profile['joinedHubs'] ?? const []);
+    // Right after signing in, the pieces arrive one after another.
+    final intro = Entrance.take();
 
     return SingleChildScrollView(
       child: Column(
@@ -74,11 +77,18 @@ class HomeScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Daily check-in
-                CheckInCard(user: user),
+                StaggerIn(
+                  index: 0,
+                  enabled: intro,
+                  child: CheckInCard(user: user),
+                ),
                 const SizedBox(height: 16),
 
                 // Quick actions
-                Row(
+                StaggerIn(
+                  index: 1,
+                  enabled: intro,
+                  child: Row(
                   children: [
                     Expanded(
                       child: _QuickAction(
@@ -99,10 +109,14 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ],
                 ),
+                ),
                 const SizedBox(height: 24),
 
                 // Hubs (live from Firestore)
-                StreamBuilder<List<Hub>>(
+                StaggerIn(
+                  index: 2,
+                  enabled: intro,
+                  child: StreamBuilder<List<Hub>>(
                   stream: HubService.instance.hubs(),
                   builder: (context, snap) {
                     if (!snap.hasData) {
@@ -161,6 +175,7 @@ class HomeScreen extends StatelessWidget {
                       ],
                     );
                   },
+                ),
                 ),
               ],
             ),

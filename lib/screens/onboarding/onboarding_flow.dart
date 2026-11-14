@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../services/user_service.dart';
+import '../../widgets/entrance.dart';
 import 'goals_page.dart';
 import 'greeting_page.dart';
 import 'interests_page.dart';
@@ -34,12 +35,14 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
   Future<void> _finish() async {
     setState(() => _saving = true);
     try {
+      Entrance.arm();
       await UserService.instance.completeOnboarding(
         user: widget.user,
         interests: _interests.toList(),
         goals: _goals.toList(),
       );
     } catch (_) {
+      Entrance.take();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

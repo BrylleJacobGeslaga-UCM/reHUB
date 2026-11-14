@@ -6,6 +6,7 @@ import '../../theme/app_text.dart';
 import '../../widgets/app_button.dart';
 import '../../widgets/app_text_field.dart';
 import '../../widgets/auth_hero.dart';
+import '../../widgets/entrance.dart';
 import '../../widgets/or_divider.dart';
 import '../../widgets/splash_intro.dart';
 import 'sign_up_screen.dart';
@@ -23,6 +24,8 @@ class _SignInScreenState extends State<SignInScreen> {
   final _password = TextEditingController();
   bool _loading = false;
   bool _guestLoading = false;
+  bool _signedIn = false;
+  bool _guestDone = false;
   final _heroKey = GlobalKey();
   final _logoKey = GlobalKey();
 
@@ -43,9 +46,13 @@ class _SignInScreenState extends State<SignInScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _loading = true);
     try {
+      Entrance.arm();
       await AuthService.instance.signIn(_email.text, _password.text);
-      // AuthGate switches screens automatically once signed in.
+      // AuthGate switches screens automatically once signed in; the ✓ shows
+      // while this screen fades away.
+      if (mounted) setState(() => _signedIn = true);
     } catch (e) {
+      Entrance.take(); // didn't sign in: don't animate Home later
       _show(AuthService.messageFor(e));
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -55,8 +62,11 @@ class _SignInScreenState extends State<SignInScreen> {
   Future<void> _guest() async {
     setState(() => _guestLoading = true);
     try {
+      Entrance.arm();
       await AuthService.instance.continueAsGuest();
+      if (mounted) setState(() => _guestDone = true);
     } catch (e) {
+      Entrance.take();
       _show(AuthService.messageFor(e));
     } finally {
       if (mounted) setState(() => _guestLoading = false);
@@ -139,7 +149,10 @@ class _SignInScreenState extends State<SignInScreen> {
                     ),
                     const SizedBox(height: 4),
                     AppButton(
-                        label: 'Sign in', onPressed: _signIn, loading: _loading),
+                        label: 'Sign in',
+                        onPressed: _signIn,
+                        loading: _loading,
+                        done: _signedIn),
                     const SizedBox(height: 8),
                     SwitchAuthRow(
                       question: 'New to reHUB?',
@@ -157,6 +170,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       type: AppButtonType.secondary,
                       onPressed: _guest,
                       loading: _guestLoading,
+                      done: _guestDone,
                     ),
                     const SizedBox(height: 32),
                     Text(

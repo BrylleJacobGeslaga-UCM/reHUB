@@ -14,6 +14,7 @@ class AppButton extends StatelessWidget {
     this.type = AppButtonType.primary,
     this.showIcon = false,
     this.loading = false,
+    this.done = false,
   });
 
   final String label;
@@ -21,6 +22,9 @@ class AppButton extends StatelessWidget {
   final AppButtonType type;
   final bool showIcon;
   final bool loading;
+
+  /// Shows a ✓ (e.g. after signing in successfully).
+  final bool done;
 
   @override
   Widget build(BuildContext context) {
@@ -36,11 +40,11 @@ class AppButton extends StatelessWidget {
       width: double.infinity,
       height: 54,
       child: TextButton(
-        onPressed: loading ? null : onPressed,
+        onPressed: loading || done ? null : onPressed,
         style: TextButton.styleFrom(
           backgroundColor: bg,
           foregroundColor: fg,
-          disabledBackgroundColor: bg.withValues(alpha: 0.7),
+          disabledBackgroundColor: done ? bg : bg.withValues(alpha: 0.7),
           disabledForegroundColor: fg,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -50,13 +54,22 @@ class AppButton extends StatelessWidget {
           ),
           textStyle: AppText.bodyStrong.copyWith(fontWeight: FontWeight.w700),
         ),
-        child: loading
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          transitionBuilder: (child, anim) =>
+              ScaleTransition(scale: anim, child: child),
+          child: done
+            ? Icon(Icons.check_rounded,
+                key: const ValueKey('done'), size: 26, color: fg)
+            : loading
             ? SizedBox(
+                key: const ValueKey('loading'),
                 width: 22,
                 height: 22,
                 child: CircularProgressIndicator(strokeWidth: 2.5, color: fg),
               )
             : Row(
+                key: const ValueKey('label'),
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(label),
@@ -66,6 +79,7 @@ class AppButton extends StatelessWidget {
                   ],
                 ],
               ),
+        ),
       ),
     );
   }
