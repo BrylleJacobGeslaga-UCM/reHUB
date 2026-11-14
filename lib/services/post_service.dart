@@ -142,36 +142,39 @@ class PostService {
 
   /// One reaction per person per post. Tapping the same one again removes
   /// it; tapping a different one switches.
+  /// Toggles your reaction on a post. [current] is the reaction you have
+  /// now (from [myReactions]).
+  ///
+  /// Uses a batched write, not a transaction: Firestore shows batched writes
+  /// on screen instantly (from the phone's cache) and syncs in the
+  /// background. If the server rejects it, the screen quietly switches back
+  /// and this throws.
   Future<void> react({
     required String uid,
     required String postId,
     required Reaction reaction,
+    required Reaction? current,
   }) {
     final postRef = _posts.doc(postId);
     final mineRef = _user(uid).collection('reactions').doc(postId);
+    final batch = _db.batch();
 
-    return _db.runTransaction((tx) async {
-      final post = await tx.get(postRef);
-      if (!post.exists) return;
-      final mine = await tx.get(mineRef);
-      final old = reactionFromName(mine.data()?['type'] as String?);
-
-      final updates = <String, dynamic>{};
-      if (old == reaction) {
-        tx.delete(mineRef);
-        updates['reactions.${reaction.name}'] = FieldValue.increment(-1);
-      } else {
-        tx.set(mineRef, {
-          'type': reaction.name,
-          'at': FieldValue.serverTimestamp(),
-        });
-        updates['reactions.${reaction.name}'] = FieldValue.increment(1);
-        if (old != null) {
-          updates['reactions.${old.name}'] = FieldValue.increment(-1);
-        }
+    final updates = <String, dynamic>{};
+    if (current == reaction) {
+      batch.delete(mineRef);
+      updates['reactions.${reaction.name}'] = FieldValue.increment(-1);
+    } else {
+      batch.set(mineRef, {
+        'type': reaction.name,
+        'at': FieldValue.serverTimestamp(),
+      });
+      updates['reactions.${reaction.name}'] = FieldValue.increment(1);
+      if (current != null) {
+        updates['reactions.${current.name}'] = FieldValue.increment(-1);
       }
-      tx.update(postRef, updates);
-    });
+    }
+    batch.update(postRef, updates);
+    return batch.commit();
   }
 
   // ---------- comments ----------

@@ -121,14 +121,18 @@ class _CommentsScreenState extends State<CommentsScreen> {
   void _report(ReportTarget target) =>
       showReportSheet(context, user: widget.user, target: target);
 
-  Future<void> _react(Reaction r) async {
+  Future<void> _react(Reaction r, Reaction? current) async {
     if (_isGuest) {
       await showGuestPrompt(context, action: 'react to posts');
       return;
     }
     try {
       await PostService.instance
-          .react(uid: widget.user.uid, postId: widget.postId, reaction: r);
+          .react(
+          uid: widget.user.uid,
+          postId: widget.postId,
+          reaction: r,
+          current: current);
     } catch (_) {
       _show('Couldn’t save your reaction. Try again.');
     }
@@ -236,7 +240,7 @@ class _Thread extends StatelessWidget {
 
   final User user;
   final Post post;
-  final ValueChanged<Reaction> onReact;
+  final void Function(Reaction reaction, Reaction? current) onReact;
   final ValueChanged<Comment> onDelete;
   final ValueChanged<ReportTarget> onReport;
 
@@ -256,7 +260,7 @@ class _Thread extends StatelessWidget {
                 PostCard(
                   post: post,
                   myReaction: reactSnap.data?[post.id],
-                  onReact: onReact,
+                  onReact: (r) => onReact(r, reactSnap.data?[post.id]),
                   onComment: () {},
                 ),
                 const SizedBox(height: 20),

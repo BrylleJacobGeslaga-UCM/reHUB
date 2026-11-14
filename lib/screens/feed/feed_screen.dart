@@ -109,10 +109,14 @@ class _FeedScreenState extends State<FeedScreen> {
         ),
       );
 
-  Future<void> _react(Post post, Reaction r) async {
+  Future<void> _react(Post post, Reaction r, Reaction? current) async {
     try {
       await PostService.instance
-          .react(uid: widget.user.uid, postId: post.id, reaction: r);
+          .react(
+              uid: widget.user.uid,
+              postId: post.id,
+              reaction: r,
+              current: current);
     } catch (_) {
       _show('Couldn’t save your reaction. Try again.');
     }
@@ -225,7 +229,7 @@ class _FeedScreenState extends State<FeedScreen> {
                           post: p,
                           myReaction: reactions[p.id],
                           isMine: mine.contains(p.id),
-                          onReact: (r) => _react(p, r),
+                          onReact: (r) => _react(p, r, reactions[p.id]),
                           onComment: () => _comments(p),
                           onDelete: () => _delete(p),
                           onReport: () => _report(p),
