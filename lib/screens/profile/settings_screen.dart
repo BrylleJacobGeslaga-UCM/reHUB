@@ -9,6 +9,7 @@ import '../../widgets/screen_header.dart';
 import '../../widgets/sheets.dart';
 import '../auth/sign_up_screen.dart';
 import '../hubs/my_requests_screen.dart';
+import '../info/about_screen.dart';
 import '../info/guidelines_screen.dart';
 import '../../services/reminder_service.dart';
 import 'blocked_screen.dart';
@@ -127,11 +128,11 @@ class SettingsScreen extends StatelessWidget {
                       subtitle: 'How we keep reHUB safe, and what we store',
                       onTap: () => openGuidelines(context),
                     ),
-                    const _Row(
+                    _Row(
                       icon: Icons.info_outline_rounded,
-                      title: 'reHUB',
-                      subtitle: 'A peer-support community, not a substitute '
-                          'for professional care.',
+                      title: 'About reHUB',
+                      subtitle: 'Version, privacy and who made it',
+                      onTap: () => openAbout(context),
                     ),
                   ]),
                   const SizedBox(height: 20),
