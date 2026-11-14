@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -62,23 +64,11 @@ class ChatScreen extends StatelessWidget {
               .toList();
           return StreamBuilder<Map<String, DateTime>>(
             stream: ChatService.instance.reads(user.uid),
-            builder: (context, readSnap) {
-              final reads = readSnap.data ?? const {};
-              return Column(
-                children: [
-                  for (final hub in hubs)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: _ChatRow(
-                        key: ValueKey(hub.id),
-                        user: user,
-                        hub: hub,
-                        lastRead: reads[hub.id],
-                      ),
-                    ),
-                ],
-              );
-            },
+            builder: (context, readSnap) => _ChatList(
+              user: user,
+              hubs: hubs,
+              reads: readSnap.data ?? const {},
+            ),
           );
         },
       );
@@ -100,104 +90,204 @@ class ChatScreen extends StatelessWidget {
   }
 }
 
-class _ChatRow extends StatefulWidget {
+/// The chats, newest conversation first (like Messenger). Hubs with no
+/// messages yet go last, by name. Rows glide to their new place when the
+/// order changes.
+class _ChatList extends StatefulWidget {
+  const _ChatList({
+    required this.user,
+    required this.hubs,
+    required this.reads,
+  });
+
+  final User user;
+  final List<Hub> hubs;
+  final Map<String, DateTime> reads;
+
+  @override
+  State<_ChatList> createState() => _ChatListState();
+}
+
+class _ChatListState extends State<_ChatList> {
+  final _subs = <String, StreamSubscription<Message?>>{};
+  final _latest = <String, Message?>{};
+
+  @override
+  void initState() {
+    super.initState();
+    _sync();
+  }
+
+  @override
+  void didUpdateWidget(_ChatList old) {
+    super.didUpdateWidget(old);
+    _sync();
+  }
+
+  /// Listens to the newest message of every joined hub (and stops for
+  /// hubs you left).
+  void _sync() {
+    final ids = widget.hubs.map((h) => h.id).toSet();
+    for (final id in _subs.keys.toList()) {
+      if (!ids.contains(id)) {
+        _subs.remove(id)?.cancel();
+        _latest.remove(id);
+      }
+    }
+    for (final id in ids) {
+      _subs.putIfAbsent(
+        id,
+        () => ChatService.instance.latest(id).listen(
+              (m) {
+                if (mounted) setState(() => _latest[id] = m);
+              },
+              onError: (_) {},
+            ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    for (final s in _subs.values) {
+      s.cancel();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final hubs = [...widget.hubs]..sort((a, b) {
+        final ma = _latest[a.id];
+        final mb = _latest[b.id];
+        if (ma != null && mb != null) {
+          return mb.createdAt.compareTo(ma.createdAt);
+        }
+        if (ma != null) return -1;
+        if (mb != null) return 1;
+        return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+      });
+
+    // Every row is the same height, so rows can glide when they reorder.
+    // (Grows with the phone's font size setting.)
+    final scale = MediaQuery.textScalerOf(context);
+    final text = scale.scale(24) + 2 + scale.scale(18);
+    final double cardHeight = 28.0 + (text > 52.0 ? text : 52.0);
+    final rowHeight = cardHeight + 12;
+    return SizedBox(
+      height: rowHeight * hubs.length,
+      child: Stack(
+        children: [
+          for (var i = 0; i < hubs.length; i++)
+            AnimatedPositioned(
+              key: ValueKey(hubs[i].id),
+              duration: const Duration(milliseconds: 350),
+              curve: Curves.easeOutCubic,
+              top: rowHeight * i,
+              left: 0,
+              right: 0,
+              height: rowHeight - 12,
+              child: _ChatRow(
+                user: widget.user,
+                hub: hubs[i],
+                last: _latest[hubs[i].id],
+                lastRead: widget.reads[hubs[i].id],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ChatRow extends StatelessWidget {
   const _ChatRow({
-    super.key,
     required this.user,
     required this.hub,
+    required this.last,
     required this.lastRead,
   });
 
   final User user;
   final Hub hub;
+  final Message? last;
   final DateTime? lastRead;
 
   @override
-  State<_ChatRow> createState() => _ChatRowState();
-}
-
-class _ChatRowState extends State<_ChatRow> {
-  late final Stream<Message?> _latest =
-      ChatService.instance.latest(widget.hub.id);
-
-  @override
   Widget build(BuildContext context) {
-    return StreamBuilder<Message?>(
-      stream: _latest,
-      builder: (context, snap) {
-        final last = snap.data;
-        final unread = last != null &&
-            last.senderId != widget.user.uid &&
-            (widget.lastRead == null || last.createdAt.isAfter(widget.lastRead!));
-        final preview = last == null
-            ? 'No messages yet. Say hi!'
-            : last.senderId == widget.user.uid
-                ? 'You: ${last.body}'
-                : '${last.senderName.split(' ').first}: ${last.body}';
+    final last = this.last;
+    final unread = last != null &&
+        last.senderId != user.uid &&
+        (lastRead == null || last.createdAt.isAfter(lastRead!));
+    final preview = last == null
+        ? 'No messages yet. Say hi!'
+        : last.senderId == user.uid
+            ? 'You: ${last.body}'
+            : '${last.senderName.split(' ').first}: ${last.body}';
 
-        return AppCard(
-          onTap: () => openChatRoom(context, widget.user, widget.hub),
-          padding: const EdgeInsets.all(14),
-          child: Row(
-            children: [
-              IconTile(icon: widget.hub.icon, size: 52),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+    return AppCard(
+      onTap: () => openChatRoom(context, user, hub),
+      padding: const EdgeInsets.all(14),
+      child: Row(
+        children: [
+          IconTile(icon: hub.icon, size: 52),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(widget.hub.name,
-                              overflow: TextOverflow.ellipsis,
-                              style: AppText.title),
-                        ),
-                        if (last != null)
-                          Text(shortStamp(last.createdAt),
-                              style: AppText.caption.copyWith(
-                                color: unread
-                                    ? AppColors.primary
-                                    : AppColors.textSubtle,
-                                fontWeight:
-                                    unread ? FontWeight.w700 : FontWeight.w500,
-                              )),
-                      ],
+                    Expanded(
+                      child: Text(hub.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppText.title),
                     ),
-                    const SizedBox(height: 2),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            preview,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppText.caption.copyWith(
-                              color: unread ? AppColors.text : AppColors.textMuted,
-                              fontWeight:
-                                  unread ? FontWeight.w600 : FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                        if (unread)
-                          Container(
-                            width: 10,
-                            height: 10,
-                            margin: const EdgeInsets.only(left: 8),
-                            decoration: const BoxDecoration(
-                              color: AppColors.primary,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                      ],
-                    ),
+                    if (last != null)
+                      Text(shortStamp(last.createdAt),
+                          style: AppText.caption.copyWith(
+                            color: unread
+                                ? AppColors.primary
+                                : AppColors.textSubtle,
+                            fontWeight:
+                                unread ? FontWeight.w700 : FontWeight.w500,
+                          )),
                   ],
                 ),
-              ),
-            ],
+                const SizedBox(height: 2),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        preview,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppText.caption.copyWith(
+                          color: unread ? AppColors.text : AppColors.textMuted,
+                          fontWeight:
+                              unread ? FontWeight.w600 : FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    if (unread)
+                      Container(
+                        width: 10,
+                        height: 10,
+                        margin: const EdgeInsets.only(left: 8),
+                        decoration: const BoxDecoration(
+                          color: AppColors.primary,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                  ],
+                ),
+              ],
+            ),
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 }

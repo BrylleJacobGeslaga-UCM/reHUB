@@ -85,11 +85,48 @@ class RequestCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text('Suggested by ${request.requesterName}', style: meta),
           ],
-          if (request.status == RequestStatus.rejected &&
-              request.reviewNote != null) ...[
-            const SizedBox(height: 8),
-            Text('Reason: ${request.reviewNote}',
-                style: AppText.caption.copyWith(color: AppColors.danger)),
+          if (request.status == RequestStatus.rejected) ...[
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.dangerTint,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.info_outline_rounded,
+                      size: 18, color: AppColors.danger),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          request.reviewNote == null ||
+                                  request.reviewNote!.isEmpty
+                              ? 'This suggestion wasn’t approved.'
+                              : 'Why it wasn’t approved',
+                          style: AppText.caption.copyWith(
+                              color: AppColors.text,
+                              fontWeight: FontWeight.w700),
+                        ),
+                        if (request.reviewNote != null &&
+                            request.reviewNote!.isNotEmpty)
+                          Text(request.reviewNote!,
+                              style: AppText.caption
+                                  .copyWith(color: AppColors.text)),
+                        const SizedBox(height: 2),
+                        Text('You can suggest a new hub anytime.',
+                            style: AppText.caption
+                                .copyWith(color: AppColors.textMuted)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
           if (actions != null) ...[const SizedBox(height: 12), actions!],
         ],
